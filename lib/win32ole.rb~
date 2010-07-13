@@ -1,0 +1,57 @@
+require 'java'
+require 'jacob.jar'
+
+import com.jacob.com.ComThread
+import com.jacob.com.Dispatch
+import com.jacob.com.Variant
+
+class WIN32OLE
+  def initialize(id)
+    @obj = Dispatch.new(id)
+  end
+  
+  def method_missing(method_name, *args)
+    count = args ? args.length : 0
+    arglist = make_arglist(count)
+    name = method_name.to_s
+    id = Dispatch.getIDOfName(@obj, name)
+
+    # Bad assumption that all method wil lhave same # of args
+    method =<<-EOF
+    def #{name}(#{arglist})
+      variant_value(Dispatch.call(@obj, #{id}, #{arglist}))
+    end
+    EOF
+    self.class.class_eval method
+
+#    self.class.send(:define_method, name) { |*parms|
+#      variant_value(Dispatch.call(@obj, id, *parms))
+#    }
+    __send__(name, *args)
+  end
+
+  def make_arglist(count)
+    (1..count).inject([]) { |memo, i| memo << "arg#{i}" }.join(", ")
+  end
+
+  def variant_value(variant)
+    case(variant.getvt)
+    when Variant::VariantInt
+      variant.getInt
+    when Variant::VariantString
+      variant.getString
+    when Variant::VariantDouble
+      variant.getDouble
+    when Variant::VariantFloat
+      variant.getFloat
+    when Variant::VariantShort
+      variant.getShort
+    when Variant::VariantEmpty
+      nil
+    when Variant::VariantBoolean
+      variant.getBoolean
+    else
+      puts "other = #{variant.getvt}"
+    end
+  end
+end

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+jruby -J-Djava.library.path=lib -Ilib samples/$1.rb
