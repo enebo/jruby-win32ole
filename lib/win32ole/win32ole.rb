@@ -69,7 +69,7 @@ class WIN32OLE
       variant.getFloat
     when Variant::VariantShort
       variant.getShort
-    when Variant::VariantEmpty
+    when Variant::VariantEmpty, Variant::VariantNull
       nil
     when Variant::VariantBoolean
       variant.getBoolean
