@@ -1,7 +1,7 @@
 class WIN32OLE
   # TODO: server_name, host, others are missing
   def initialize(id, *rest)
-    @obj = Dispatch.new to_progid(id)
+    @obj = Dispatch.new WIN32OLE.to_progid(id)
   end
   
   # Needs to support property gets and sets as well as methods
@@ -26,12 +26,18 @@ class WIN32OLE
     end
   end
 
-  private
-  
-  def to_progid(id)
-    return "clsid:#{$1}" if id =~ /^{(.*)}/
-    id
+  class << self
+    def connect(id)
+      WIN32OLE.new to_progid(id)
+    end
+
+    def to_progid(id)
+      return "clsid:#{$1}" if id =~ /^{(.*)}/
+      id
+    end
   end
+
+  private
 
   def define_set(name)
     id = Dispatch.getIDOfName(@obj, name[0..-2])
