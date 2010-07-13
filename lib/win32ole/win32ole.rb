@@ -34,7 +34,17 @@ class WIN32OLE
     end
   end
 
+  def each
+    # TODO: Make EnumVariant have builtin each
+    enum_variant = EnumVariant.new @obj
+
+    while enum_variant.has_more_elements
+      yield variant_value(enum_variant.next_element)
+    end
+  end
+
   def variant_value(variant)
+    # TODO: Consider having to_ruby on all Variant types instead of this
     case(variant.getvt)
     when Variant::VariantInt
       variant.getInt
@@ -50,6 +60,8 @@ class WIN32OLE
       nil
     when Variant::VariantBoolean
       variant.getBoolean
+    when Variant::VariantDispatch
+      WIN32OLE.new(variant.getDispatch)
     else
       puts "other = #{variant.getvt}"
     end
