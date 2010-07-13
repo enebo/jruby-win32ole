@@ -1,7 +1,7 @@
 class WIN32OLE
   # TODO: server_name, host, others are missing
   def initialize(id, *rest)
-    @obj = Dispatch.new(id)
+    @obj = Dispatch.new to_progid(id)
   end
   
   # Needs to support property gets and sets as well as methods
@@ -15,6 +15,22 @@ class WIN32OLE
     end
 
     __send__(name, *args)
+  end
+
+  def each
+    # TODO: Make EnumVariant have builtin each
+    enum_variant = EnumVariant.new @obj
+
+    while enum_variant.has_more_elements
+      yield variant_value(enum_variant.next_element)
+    end
+  end
+
+  private
+  
+  def to_progid(id)
+    return "clsid:#{$1}" if id =~ /^{(.*)}/
+    id
   end
 
   def define_set(name)
@@ -31,15 +47,6 @@ class WIN32OLE
 
     self.class.__send__(:define_method, name) do |*parms|
       variant_value(Dispatch.call(@obj, id, *parms))
-    end
-  end
-
-  def each
-    # TODO: Make EnumVariant have builtin each
-    enum_variant = EnumVariant.new @obj
-
-    while enum_variant.has_more_elements
-      yield variant_value(enum_variant.next_element)
     end
   end
 
