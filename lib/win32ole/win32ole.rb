@@ -1,7 +1,9 @@
 class WIN32OLE
+  attr_reader :dispatch
+
   # TODO: server_name, host, others are missing
   def initialize(id, *rest)
-    @obj = Dispatch.new WIN32OLE.to_progid(id)
+    @dispatch = Dispatch.new WIN32OLE.to_progid(id)
   end
   
   # Needs to support property gets and sets as well as methods
@@ -19,7 +21,7 @@ class WIN32OLE
 
   def each
     # TODO: Make EnumVariant have builtin each
-    enum_variant = EnumVariant.new @obj
+    enum_variant = EnumVariant.new @dispatch
 
     while enum_variant.has_more_elements
       yield variant_value(enum_variant.next_element)
@@ -40,19 +42,19 @@ class WIN32OLE
   private
 
   def define_set(name)
-    id = Dispatch.getIDOfName(@obj, name[0..-2])
+    id = Dispatch.getIDOfName(@dispatch, name[0..-2])
 
     self.class.__send__(:define_method, name) do |*parms|
-      Dispatch.put(@obj, id, *parms)
+      Dispatch.put(@dispatch, id, *parms)
       nil # TODO: Should set's return nil?
     end
   end
 
   def define_method_or_get(name)
-    id = Dispatch.getIDOfName(@obj, name)
+    id = Dispatch.getIDOfName(@dispatch, name)
 
     self.class.__send__(:define_method, name) do |*parms|
-      variant_value(Dispatch.call(@obj, id, *parms))
+      variant_value(Dispatch.call(@dispatch, id, *parms))
     end
   end
 
