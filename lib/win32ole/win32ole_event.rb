@@ -18,6 +18,7 @@ end
 
 class WIN32OLE_EVENT
   def initialize(ole, event_name)
+    @event_handlers = {}
     # TODO: Argument errors + specs
 
     if event_name.nil? # Default event name
@@ -27,7 +28,13 @@ class WIN32OLE_EVENT
     RubyDispatchEvents.new(ole.dispatch, RubyInvocationProxy.new(self))
   end
 
+  def on_event(name, &block)
+    @event_handlers[name.to_sym] = block
+  end
+
   def method_missing(name, *args)
-    puts "Called #{name} #{args.join(',' )}"
+    puts "Called '#{name}' #{args.join(',' )}"
+    handler = @event_handlers[name]
+    handler.call(args) if handler
   end
 end
