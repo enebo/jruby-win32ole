@@ -19,6 +19,14 @@ class WIN32OLE
     __send__(name, *args)
   end
 
+  def [](property_name)
+    variant_value(Dispatch.get(@dispatch, property_name))
+  end
+
+  def []=(property_name, value)
+    Dispatch.put(@dispatch, property_name, value)
+  end
+
   def each
     # TODO: Make EnumVariant have builtin each
     enum_variant = EnumVariant.new @dispatch
