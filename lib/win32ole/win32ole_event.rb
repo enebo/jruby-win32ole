@@ -5,8 +5,7 @@ class RubyInvocationProxy < com.jacob.com.InvocationProxy
     @target = target
   end
 
-  def invoke(name, *parameters)
-    puts "In invoke"
+  def invoke(name, parameters) # parameters is Variant[] always
     @target.__send__ name, *parameters
   end
 end
@@ -14,11 +13,6 @@ end
 class RubyDispatchEvents < com.jacob.com.DispatchEvents
   def initialize(source, event_sink)
     super(source, event_sink)
-  end
-
-  def getInvocationProxy(target)
-    puts "HERE! yes #{target}"
-    RubyInvocationProxy.new(target)
   end
 end
 
@@ -30,7 +24,7 @@ class WIN32OLE_EVENT
       # TODO: get default event
     end
     
-    RubyDispatchEvents.new(ole.dispatch, self)
+    RubyDispatchEvents.new(ole.dispatch, RubyInvocationProxy.new(self))
   end
 
   def method_missing(name, *args)

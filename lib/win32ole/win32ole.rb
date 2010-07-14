@@ -77,8 +77,10 @@ class WIN32OLE
       variant.getBoolean
     when Variant::VariantDispatch
       WIN32OLE.new(variant.getDispatch)
+    when Variant::VariantLongInt
+      variant.getLong
     else
-      puts "other = #{variant.getvt}"
+      puts "ERROR! unknown variant_value: #{variant.getvt}"
     end
   end
 end
