@@ -7,4 +7,5 @@ import com.jacob.com.EnumVariant
 import com.jacob.com.Variant
 
 require 'win32ole/win32ole'
+require 'win32ole/win32ole_variant'
 require 'win32ole/win32ole_event'
