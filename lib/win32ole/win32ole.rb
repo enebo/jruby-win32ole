@@ -43,7 +43,9 @@ class WIN32OLE
     method_missing(name, *args)
   end
 
-  # TODO: instance method invoke
+  def ole_free
+    @dispatch.safe_release
+  end
 
   def type_info
     @dispatch.type_info
