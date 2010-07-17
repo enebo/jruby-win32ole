@@ -84,7 +84,6 @@ class WIN32OLE
     def first_var_name(type_info, var_desc)
       type_info.get_names(var_desc.memid)[0]
     rescue
-      puts "ERROR is #{$!}"
       nil
     end
   end
