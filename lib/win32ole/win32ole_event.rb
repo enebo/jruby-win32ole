@@ -49,16 +49,9 @@ class WIN32OLE_EVENT
     end
   end
 
-  # Although this has an FFI version of MRI's message_loop it is very unlikely
-  # to work since Jacob also has an event thread doing this same thing.  So
-  # these extra calls do not hurt, but they also probably will not help either.
+  # Almost noop this.  We don't because it get CPU hot when people put this
+  # in a hot loop!
   def self.message_loop
-    # TODO: Explicitly free message vs wait for GC?
-    message = ::Win::User32::MSG.new
-    while ::Win::User32::peek_message(message, nil, 0, 0, ::Win::User32::PM_REMOVE)
-      p value, message
-      ::Win::User32::translate_message(message)
-      ::Win::User32::dispatch_message(message)
-    end
+    sleep 0.1
   end
 end

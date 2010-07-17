@@ -11,7 +11,7 @@ end
 
 def stop_msg_loop
   puts "IE has exited..."
-  throw :done
+  $done = true
 end
 
 
@@ -30,16 +30,14 @@ ev = WIN32OLE_EVENT.new(ie, 'DWebBrowserEvents')
 
 
 ev.on_event {|*args| default_handler(*args)}
-ev.on_event("NavigateComplete") {|url| navigate(url)}
-ev.on_event("Quit") {|*args| stop_msg_loop}
+ev.on_event("NavigateComplete2") {|url| navigate(url)}
+ev.on_event("OnQuit") {|*args| stop_msg_loop}
 
 
-catch(:done) {
-  loop {
-    WIN32OLE_EVENT.message_loop
-  }
-}
-
+while !$done do
+  WIN32OLE_EVENT.message_loop
+  sleep 0.5
+end
 
 puts "You Navigated to the following URLs: "
 $urls.each_with_index do |url, i|
