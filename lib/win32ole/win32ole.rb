@@ -39,6 +39,10 @@ class WIN32OLE
     end
   end
 
+  def invoke(name, *args)
+    method_missing(name, *args)
+  end
+
   # TODO: instance method invoke
 
   def type_info
