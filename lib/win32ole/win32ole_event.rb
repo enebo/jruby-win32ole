@@ -6,13 +6,15 @@ class RubyInvocationProxy < com.jacob.com.InvocationProxy
   end
 
   def invoke(name, parameters) # parameters is Variant[] always
-    @target.__send__ name, *parameters
+    parms = parameters[1..-1].map {|p| VariantUtilities.variant_to_object(p) }
+    @target.__send__ name, *parms
+    nil # TODO I am guessing we need to return actual variant here
   end
 end
 
 class RubyDispatchEvents < com.jacob.com.DispatchEvents
-  def initialize(source, event_sink)
-    super(source, event_sink)
+  def initialize(source, event_sink, prog_id=nil)
+    super(source, event_sink, prog_id)
   end
 end
 
@@ -25,16 +27,30 @@ class WIN32OLE_EVENT
       # TODO: get default event
     end
     
-    RubyDispatchEvents.new(ole.dispatch, RubyInvocationProxy.new(self))
+    dispatch = ole.dispatch
+    proxy = RubyInvocationProxy.new(self), dispatch.program_id
+    RubyDispatchEvents.new(dispatch, proxy)
   end
 
-  def on_event(name, &block)
-    @event_handlers[name.to_sym] = block
+  def on_event(name=nil, &block)
+    if name
+      @event_handlers[name.to_sym] = block
+    else
+      @default_handler = block
+    end
   end
 
   def method_missing(name, *args)
-    puts "Called '#{name}' #{args.join(',' )}"
     handler = @event_handlers[name]
-    handler.call(args) if handler
+    if handler
+      handler.call(*args) 
+    elsif @default_handler
+      @default_handler.call(name, *args)
+    end
+  end
+
+  class << self
+    def message_loop
+    end
   end
 end

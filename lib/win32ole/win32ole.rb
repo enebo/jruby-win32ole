@@ -21,7 +21,7 @@ class WIN32OLE
 
   # Returns the named property from the OLE automation object. 
   def [](property_name)
-    variant_value(Dispatch.get(@dispatch, property_name))
+    VariantUtilities.variant_to_object(Dispatch.get(@dispatch, property_name))
   end
 
   # Sets the named property in the OLE automation object. 
@@ -35,7 +35,7 @@ class WIN32OLE
     enum_variant = EnumVariant.new @dispatch
 
     while enum_variant.has_more_elements
-      yield variant_value(enum_variant.next_element)
+      yield VariantUtilities.variant_to_object(enum_variant.next_element)
     end
   end
 
@@ -104,33 +104,7 @@ class WIN32OLE
     id = Dispatch.getIDOfName(@dispatch, name)
 
     self.class.__send__(:define_method, name) do |*parms|
-      variant_value(Dispatch.call(@dispatch, id, *parms))
-    end
-  end
-
-  def variant_value(variant)
-    # TODO: Not all types represented
-    case(variant.getvt)
-    when Variant::VariantInt
-      variant.getInt
-    when Variant::VariantString
-      variant.getString
-    when Variant::VariantDouble
-      variant.getDouble
-    when Variant::VariantFloat
-      variant.getFloat
-    when Variant::VariantShort
-      variant.getShort
-    when Variant::VariantEmpty, Variant::VariantNull
-      nil
-    when Variant::VariantBoolean
-      variant.getBoolean
-    when Variant::VariantDispatch
-      WIN32OLE.new(variant.getDispatch)
-    when Variant::VariantLongInt
-      variant.getLong
-    else
-      puts "ERROR! unknown variant_value: #{variant.getvt}"
+      VariantUtilities.variant_to_object(Dispatch.call(@dispatch, id, *parms))
     end
   end
 end
