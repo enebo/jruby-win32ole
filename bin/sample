@@ -1,3 +1,4 @@
 #!/bin/sh
 
+#jruby -J-Xdebug -J-Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=y -J-Djava.library.path=lib -Ilib samples/$1.rb
 jruby -J-Dcom.jacob.debug=true -J-Djava.library.path=lib -Ilib samples/$1.rb
