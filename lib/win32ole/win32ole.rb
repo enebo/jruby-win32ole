@@ -64,9 +64,10 @@ class WIN32OLE
           # TODO: Missing some additional flag checks to limit no. of constants
           if var_desc.constant
             name = first_var_name(info, var_desc)
+            name = name[0].chr.upcase + name[1..-1] if name
             if constant?(name)
               a_class.const_set name, var_desc.constant
-            else
+            else # vars which don't start [A-Z]?
               constants[name] = var_desc.constant
             end
           end
