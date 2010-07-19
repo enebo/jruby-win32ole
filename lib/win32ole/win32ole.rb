@@ -1,4 +1,5 @@
 class WIN32OLE
+  include WIN32OLE::Utils
   attr_reader :dispatch
 
   # TODO: server_name, host, others are missing
@@ -35,7 +36,7 @@ class WIN32OLE
     enum_variant = EnumVariant.new @dispatch
 
     while enum_variant.has_more_elements
-      yield VariantUtilities.variant_to_object(enum_variant.next_element)
+      yield from_variant(enum_variant.next_element)
     end
   end
 
@@ -110,7 +111,7 @@ class WIN32OLE
     id = Dispatch.getIDOfName(@dispatch, name)
 
     self.class.__send__(:define_method, name) do |*parms|
-      VariantUtilities.variant_to_object(Dispatch.call(@dispatch, id, *parms))
+      from_variant(Dispatch.call(@dispatch, id, *parms))
     end
   end
 end

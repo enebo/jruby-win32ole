@@ -1,13 +1,14 @@
 
 class RubyInvocationProxy < com.jacob.com.InvocationProxy
+  include WIN32OLE::Utils
+
   def initialize(target)
     super()
     @target = target
   end
 
   def invoke(name, parameters) # parameters is Variant[] always
-    parms = parameters[1..-1].map {|p| VariantUtilities.variant_to_object(p) }
-    @target.__send__ name, *parms
+    @target.__send__ name, *parameters.map {|p| from_variant(p) }
     nil # TODO I am guessing we need to return actual variant here
   end
 end
