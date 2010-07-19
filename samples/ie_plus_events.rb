@@ -30,7 +30,7 @@ ev = WIN32OLE_EVENT.new(ie, 'DWebBrowserEvents')
 
 
 ev.on_event {|*args| default_handler(*args)}
-ev.on_event("NavigateComplete2") {|url| navigate(url)}
+ev.on_event("NavigateComplete2") {|obj, url| navigate(url)}
 ev.on_event("OnQuit") {|*args| stop_msg_loop}
 
 
