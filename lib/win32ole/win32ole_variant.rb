@@ -1,5 +1,5 @@
 class WIN32OLE
-  class VARIANT
+  module VARIANT
     VT_I2 = 2 # Short
     VT_I4 = 3 # Int
     VT_R4 = 4 # Float
