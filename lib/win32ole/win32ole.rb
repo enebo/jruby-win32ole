@@ -1,5 +1,4 @@
 class WIN32OLE
-  include WIN32OLE::Utils
   attr_reader :dispatch
 
   # TODO: server_name, host, others are missing
@@ -48,68 +47,26 @@ class WIN32OLE
     @dispatch.safe_release
   end
 
-  # TODO: Maybe make yielding impl so ole_method and ole_methods_sub can 
-  # be combined
   def ole_method(name)
-    type_info.funcs_count.times do |i|
-      func_desc = type_info.get_func_desc(i)
-      documentation = type_info.get_documentation(func_desc.memid)
-      if name == documentation.name
-        puts "FOUND #{name}1!!!"
-        return WIN32OLE_METHOD.new nil, name, func_desc.memid, type_info
+    all_methods(type_info, name) do |ti, oti, desc, docs, name|
+      if name == docs.name
+        return WIN32OLE_METHOD.new(nil, name, ti, oti, desc.memid)
       end
+      nil
     end
-    nil
   end
+  alias :ole_method_help :ole_method
 
   def ole_methods
-    ole_methods_from_typeinfo(typeinfo_from_ole)
-  end
-
-  def ole_methods_sub(owner_type_info, type_info, methods, mask)
-    # TODO: add owner_type_info to WIN32OLE_METHOD
-    type_info.funcs_count.times do |i|
-      begin
-        func_desc = type_info.get_func_desc(i)
-        docs = type_info.get_documentation(func_desc.memid)
-        # TODO: MASK CHECK
-        methods << WIN32OLE_METHOD.new(nil, docs.name, func_desc.memid, type_info)
-      rescue ComFailException => e
-      end
+    members = []
+    all_methods(type_info, name) do |ti, oti, desc, docs, name|
+      members << WIN32OLE_METHOD.new(nil, name, ti, oti, desc.memid)
+      nil
     end
-  end
-
-  def ole_methods_from_typeinfo(type_info, mask=nil)
-    methods = []
-    puts "TOTAL IMPL_TYPES #{type_info.impl_types_count}"
-    ole_methods_sub(nil, type_info, methods, mask)
-    type_info.impl_types_count.times do |i|
-      href = type_info.get_ref_type_of_impl_type(i)
-      ref_type_info = type_info.get_ref_type_info(href) # TODO: Failure mode?
-      ole_methods_sub(type_info, ref_type_info, methods, mask)
-    end
-    methods
+    members
   end
 
   # TODO: All these methods in MRI do many continues on error!!!
-
-  # TODO: Implement typeinfo_from_ole
-  def typeinfo_from_ole
-    type_info = @dispatch.type_info
-    docs = type_info.get_documentation(-1)
-    type_lib = type_info.get_containing_type_lib
-    type_lib.get_type_info_count.times do |i|
-      begin
-        ti = type_lib.get_type_info(i)
-        tdocs = type_lib.get_documentation(i)
-        puts "#{docs.name} == #{tdocs.name}"
-        return typelib.get_type_info(i) if tdocs.name == docs.name
-      rescue ComFailException => e
-        # We continue on failure. 
-      end
-    end
-    type_info # Actually MRI seems like it could fail in weird case
-  end
 
   def type_info
     @dispatch.type_info
@@ -142,8 +99,7 @@ class WIN32OLE
     end
 
     def to_progid(id)
-      return "clsid:#{$1}" if id =~ /^{(.*)}/
-      id
+      id =~ /^{(.*)}/ ? "clsid:#{$1}" : id
     end
 
     private
@@ -160,6 +116,8 @@ class WIN32OLE
   end
 
   private
+
+  include WIN32OLE::Utils
 
   def define_set(name)
     id = Dispatch.getIDOfName(@dispatch, name[0..-2])

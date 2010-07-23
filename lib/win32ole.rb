@@ -10,6 +10,7 @@ import com.jacob.com.Variant
 import com.jacob.com.VariantUtilities
 
 require 'win32ole/utils'
+require 'win32ole/win32ole_error'
 require 'win32ole/win32ole'
 require 'win32ole/win32ole_method'
 require 'win32ole/win32ole_variant'
