@@ -1,3 +1,6 @@
+# Shorthand vocabulary:
+#  ti, oti - typeinfo or owner_typeinfo
+
 class WIN32OLE
   attr_reader :dispatch
 
@@ -64,6 +67,11 @@ class WIN32OLE
       nil
     end
     members
+  end
+
+  def _setproperty(dispid, args, arg_types)
+    # TODO: What verification needs to happen with arg_types?
+    Dispatch.put(@dispatch, dispid, *args)
   end
 
   # TODO: All these methods in MRI do many continues on error!!!
