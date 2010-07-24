@@ -40,6 +40,19 @@ class WIN32OLE_TYPE
     members
   end
 
+  def variables
+    variables = []
+    all_vars(@typeinfo) do |desc, name|
+      puts "NAME: #{name}"
+#      variables << WIN32OLE_VARIABLE.new
+    end
+    variables
+  end
+
+  def visible?
+    @typeinfo.flags & (TypeInfo::TYPEFLAG_FHIDDEN | TypeInfo::TYPEFLAG_FRESTRICTED) == 0
+  end
+
   def typekind
     @typeinfo.typekind
   end

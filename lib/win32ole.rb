@@ -6,6 +6,7 @@ import com.jacob.com.ComFailException
 import com.jacob.com.ComThread
 import com.jacob.com.Dispatch
 import com.jacob.com.EnumVariant
+import com.jacob.com.TypeInfo
 import com.jacob.com.Variant
 import com.jacob.com.VariantUtilities
 

@@ -69,7 +69,7 @@ class WIN32OLE
       begin
         Automation.loadTypeLib(path)
       rescue ComFailException => e
-        puts "Failed to load #{name} fom #{path} because: #{e}"
+#        puts "Failed to load #{name} fom #{path} because: #{e}"
         nil
       end
     end
@@ -81,6 +81,18 @@ class WIN32OLE
         info = typelib.get_type_info(i)
         next unless info
         yield info, docs
+      end      
+    end
+
+    def all_vars(typeinfo)
+      typeinfo.vars_count.times do |i|
+        desc = typeinfo.get_var_desc(i)
+        next unless desc
+        names = typeinfo.get_names(desc.memid)
+        next if !names || names.length == 0
+        name = names[0]
+        next unless info
+        yield desc, name
       end      
     end
 
