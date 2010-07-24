@@ -1,36 +1,21 @@
 class WIN32OLE_TYPE
-  module TypeHelper 
-    def ole_methods_from_typeinfo(info, mask)
-      ole_methods_sub(nil, info, methods, mask)
-      type_info.impl_types_count.times do |i|
-        href = type_info.get_ref_type_of_impl_type(i)
-        ref_type_info = type_info.get_ref_type_info(href) # TODO: Failure mode?
-        ole_methods_sub(type_info, ref_type_info, methods, mask)
-      end
-      methods
-    end
-
-    def ole_methods_sub(owner_typeinfo, typeinfo, methods, mask)
-      type_info.funcs_count.times do |i|
-        begin
-          desc = type_info.get_func_desc(i)
-          docs = type_info.get_documentation(desc.memid)
-          # TODO: MASK CHECK
-          methods << WIN32OLE_METHOD.new(nil, typeinfo, owner_typeinfo, docs.name, desc.memid)
-        rescue ComFailException => e
-          puts "ole_methods_sub: #{e}"
-        end
-      end
-    end
-  end
+  attr_reader :typeinfo
 
   def initialize(*args)
-    if args.length == 3
-      @typelib, @info, @docs = *args
+    case args.length
+    when 2 then 
+      typelib_name, olename = *args
+      @typelib = WIN32OLE_TYPELIB.new(typelib_name) # Internal call
+      find_all_typeinfo(@typelib.typelib) do |info, docs|
+        if (docs.name == olename)
+          @typeinfo = info
+          break
+        end
+      end
+    when 3 then
+      @typelib, @typeinfo, @docs = *args
     else
-      @typelib_name, ole_name = *args
-      tl = WIN32OLE_TYPELIB.new(@typelib, olename) # Internal call
-      @info = nil
+      raise ArgumentError.new("wrong number of arguments (#{args.length} for 2)")
     end
   end
 
@@ -39,19 +24,24 @@ class WIN32OLE_TYPE
   end
 
   def major_version
-    @info.major_version
+    @typeinfo.major_version
   end
 
   def minor_version
-    @info.minor_version
+    @typeinfo.minor_version
   end
 
   def ole_methods
-    ole_methods_from_typeinfo(info, nil)
+    members = []
+    all_methods(@typeinfo) do |ti, oti, desc, docs, name|
+      members << WIN32OLE_METHOD.new(nil, name, ti, oti, desc.memid)
+      nil
+    end
+    members
   end
 
   def typekind
-    @info.typekind
+    @typeinfo.typekind
   end
 
   class << self
@@ -65,5 +55,5 @@ class WIN32OLE_TYPE
     end
   end
 
-  include TypeHelper
+  include WIN32OLE::Utils
 end

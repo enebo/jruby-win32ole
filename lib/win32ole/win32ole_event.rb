@@ -35,13 +35,14 @@ class WIN32OLE_EVENT
 
   def on_event(name=nil, &block)
     if name
-      @event_handlers[name.to_sym] = block
+      @event_handlers[name.to_s] = block
     else
       @default_handler = block
     end
   end
 
   def method_missing(name, *args)
+    name = name.to_s
     handler = @event_handlers[name]
     if handler
       handler.call *args

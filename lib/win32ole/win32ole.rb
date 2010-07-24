@@ -4,9 +4,19 @@
 class WIN32OLE
   attr_reader :dispatch
 
+  CP_ACP = 0
+  CP_OEMCP = 1
+  CP_MACCP = 2
+  CP_THREAD_ACP = 3
+  CP_SYMBOL = 42
+  CP_UTF7 = 65000
+  CP_UTF8 = 65001
+
   # TODO: server_name, host, others are missing
   def initialize(id, *rest)
-    @dispatch = Dispatch.new WIN32OLE.to_progid(id)
+    @dispatch = Dispatch.new WIN32OLE.to_progid(SafeStringValue(id))
+  rescue ComFailException
+    raise WIN32OLERuntimeError
   end
 
   # Needs to support property gets and sets as well as methods
@@ -24,7 +34,7 @@ class WIN32OLE
 
   # Returns the named property from the OLE automation object. 
   def [](property_name)
-    VariantUtilities.variant_to_object(Dispatch.get(@dispatch, property_name))
+    from_variant(Dispatch.get(@dispatch, property_name))
   end
 
   # Sets the named property in the OLE automation object. 
@@ -62,11 +72,16 @@ class WIN32OLE
 
   def ole_methods
     members = []
-    all_methods(type_info, name) do |ti, oti, desc, docs, name|
+    all_methods(type_info) do |ti, oti, desc, docs, name|
       members << WIN32OLE_METHOD.new(nil, name, ti, oti, desc.memid)
       nil
     end
     members
+  end
+
+  def _getproperty(dispid, args, arg_types)
+    # TODO: What verification needs to happen with arg_types?
+    from_variant(Dispatch.get(@dispatch, dispid, *args))
   end
 
   def _setproperty(dispid, args, arg_types)
@@ -81,6 +96,14 @@ class WIN32OLE
   end
 
   class << self
+    def codepage
+      @@codepage ||= CP_ACP
+    end
+
+    def codepage=(new_codepage)
+      @@codepage = new_codepage
+    end
+
     def connect(id)
       WIN32OLE.new to_progid(id)
     end
