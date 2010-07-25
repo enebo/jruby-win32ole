@@ -61,7 +61,7 @@ class WIN32OLE
   end
 
   def ole_method(name)
-    all_methods(type_info, name) do |ti, oti, desc, docs, name|
+    all_methods(type_info) do |ti, oti, desc, docs|
       if name == docs.name
         return WIN32OLE_METHOD.new(nil, name, ti, oti, desc.memid)
       end
@@ -72,8 +72,8 @@ class WIN32OLE
 
   def ole_methods
     members = []
-    all_methods(type_info) do |ti, oti, desc, docs, name|
-      members << WIN32OLE_METHOD.new(nil, name, ti, oti, desc.memid)
+    all_methods(type_info) do |ti, oti, desc, docs|
+      members << WIN32OLE_METHOD.new(nil, docs.name, ti, oti, desc.memid)
       nil
     end
     members

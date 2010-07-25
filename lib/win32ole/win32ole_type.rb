@@ -19,6 +19,10 @@ class WIN32OLE_TYPE
     end
   end
 
+  def guid
+    @typeinfo.guid
+  end
+
   def name
     @docs.name
   end
@@ -43,8 +47,7 @@ class WIN32OLE_TYPE
   def variables
     variables = []
     all_vars(@typeinfo) do |desc, name|
-      puts "NAME: #{name}"
-#      variables << WIN32OLE_VARIABLE.new
+      variables << WIN32OLE_VARIABLE.new(self, desc, name)
     end
     variables
   end

@@ -13,7 +13,7 @@ class WIN32OLE_TYPELIB
     elsif args.length == 1
       @name = args[0]
       @typelib = search_registry(@name) # TODO: Missing search_registry2
-      puts "NAME IS #{@name}///#{@typelib}"
+#      puts "NAME IS #{@name}///#{@typelib}"
     end
   end
 
@@ -39,6 +39,12 @@ class WIN32OLE_TYPELIB
 
   def version
     [minor_version, major_version].join('.')
+  end
+
+  def visible?
+    flags = @typelib.flags
+    flags != 0 && (flags & TypeLib::LIBFLAG_FRESTRICTED) == 0 &&
+      (flags & TypeLib::LIBFLAG_FHIDDEN) == 0
   end
 
   def inspect

@@ -91,7 +91,7 @@ class WIN32OLE
         names = typeinfo.get_names(desc.memid)
         next if !names || names.length == 0
         name = names[0]
-        next unless info
+        next unless name
         yield desc, name
       end      
     end
@@ -142,6 +142,21 @@ class WIN32OLE
         end
       end
       nil
+    end
+
+    def variable_kind_string(varkind)
+      case varkind
+        when VarDesc::VAR_PERINSTANCE then
+        "PERINSTANCE"
+        when VarDesc::VAR_STATIC then
+        "STATIC"
+        when VarDesc::VAR_CONST then
+        "CONSTANT"
+        when VarDesc::VAR_DISPATCH then
+        "DISPATCH"
+        else
+        "UNKNOWN"
+      end
     end
   end
 end
