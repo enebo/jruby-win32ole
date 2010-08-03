@@ -4,11 +4,11 @@ class WIN32OLE_TYPE
   def initialize(*args)
     case args.length
     when 2 then 
-      typelib_name, olename = *args
+      typelib_name, olename = SafeStringValue(args[0]),SafeStringValue(args[1])
       @typelib = WIN32OLE_TYPELIB.new(typelib_name) # Internal call
       find_all_typeinfo(@typelib.typelib) do |info, docs|
         if (docs.name == olename)
-          @typeinfo = info
+          @typeinfo, @docs = info, docs
           break
         end
       end
@@ -21,6 +21,18 @@ class WIN32OLE_TYPE
 
   def guid
     @typeinfo.guid
+  end
+
+  def helpcontext
+    @docs.help_context
+  end
+
+  def helpstring
+    @docs.doc_string
+  end
+
+  def helpfile
+    @docs.help_file
   end
 
   def name
@@ -37,8 +49,8 @@ class WIN32OLE_TYPE
 
   def ole_methods
     members = []
-    all_methods(@typeinfo) do |ti, oti, desc, docs, name|
-      members << WIN32OLE_METHOD.new(nil, name, ti, oti, desc.memid)
+    all_methods(@typeinfo) do |ti, oti, desc, docs, index|
+      members << WIN32OLE_METHOD.new(self, ti, oti, desc, docs, index)
       nil
     end
     members

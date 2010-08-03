@@ -8,14 +8,20 @@ class WIN32OLE
       end
       raise TypeError
     end
+
+    def WIN32OLE_TYPEValue(value)
+      raise TypeError.new("1st argument should be WIN32OLE_TYPE object") unless value.kind_of? WIN32OLE_TYPE
+      value
+    end
+
     def from_variant(value)
       object = VariantUtilities.variant_to_object(value)
       object.kind_of?(Dispatch) ? WIN32OLE.new(object) : object
     end
 
-    def all_methods(typeinfo, *args, &block) # MRI: olemethod_from_typeinfo
+    def all_methods(typeinfo, &block) # MRI: olemethod_from_typeinfo
       # Find method in this type.
-      ret = find_all_methods_in(nil, typeinfo, *args, &block)
+      ret = find_all_methods_in(nil, typeinfo, &block)
       return ret if ret
 
       # Now check all other type impls
@@ -23,7 +29,7 @@ class WIN32OLE
         begin
           href = typeinfo.get_ref_type_of_impl_type(i)
           ref_typeinfo = typeinfo.get_ref_type_info(href)
-          ret = find_all_methods_in(typeinfo, ref_typeinfo, *args, &block)
+          ret = find_all_methods_in(typeinfo, ref_typeinfo, &block)
           return ret if ret
         rescue ComFailException => e
           puts "Error getting impl types #{e}"
@@ -33,12 +39,12 @@ class WIN32OLE
     end
 
     # MRI: ole_method_sub
-    def find_all_methods_in(old_typeinfo, typeinfo, *args, &block)
+    def find_all_methods_in(old_typeinfo, typeinfo, &block)
       typeinfo.funcs_count.times do |i|
         begin
           desc = typeinfo.get_func_desc(i)
           docs = typeinfo.get_documentation(desc.memid)
-          ret = yield typeinfo, old_typeinfo, desc, docs, *args
+          ret = yield typeinfo, old_typeinfo, desc, docs, i
           return ret if ret
         rescue ComFailException => e
           puts "Error getting method info #{e}"

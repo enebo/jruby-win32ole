@@ -14,7 +14,11 @@ class WIN32OLE
 
   # TODO: server_name, host, others are missing
   def initialize(id, *rest)
-    @dispatch = Dispatch.new WIN32OLE.to_progid(SafeStringValue(id))
+    if id.kind_of? Dispatch # Variants which are dipatches need this
+      @dispatch = id
+    else
+      @dispatch = Dispatch.new WIN32OLE.to_progid(SafeStringValue(id))
+    end
   rescue ComFailException
     raise WIN32OLERuntimeError
   end
@@ -61,10 +65,8 @@ class WIN32OLE
   end
 
   def ole_method(name)
-    all_methods(type_info) do |ti, oti, desc, docs|
-      if name == docs.name
-        return WIN32OLE_METHOD.new(nil, name, ti, oti, desc.memid)
-      end
+    all_methods(type_info) do |*args|
+      return WIN32OLE_METHOD.new(nil, *args) if name == docs.name
       nil
     end
   end
@@ -72,8 +74,8 @@ class WIN32OLE
 
   def ole_methods
     members = []
-    all_methods(type_info) do |ti, oti, desc, docs|
-      members << WIN32OLE_METHOD.new(nil, docs.name, ti, oti, desc.memid)
+    all_methods(type_info) do |*args|
+      members << WIN32OLE_METHOD.new(nil, *args)
       nil
     end
     members
