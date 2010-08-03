@@ -43,7 +43,7 @@ class WIN32OLE
 
   # Sets the named property in the OLE automation object. 
   def []=(property_name, value)
-    Dispatch.put(@dispatch, property_name, value)
+    Dispatch.put(@dispatch, property_name, *to_variants(value))
   end
 
   # Iterates over each item of this OLE server that supports IEnumVARIANT 
@@ -83,12 +83,12 @@ class WIN32OLE
 
   def _getproperty(dispid, args, arg_types)
     # TODO: What verification needs to happen with arg_types?
-    from_variant(Dispatch.get(@dispatch, dispid, *args))
+    from_variant(Dispatch.get(@dispatch, dispid, *to_variants(*args)))
   end
 
   def _setproperty(dispid, args, arg_types)
     # TODO: What verification needs to happen with arg_types?
-    Dispatch.put(@dispatch, dispid, *args)
+    Dispatch.put(@dispatch, dispid, *to_variants(*args))
   end
 
   # TODO: All these methods in MRI do many continues on error!!!
@@ -152,11 +152,15 @@ class WIN32OLE
 
   include WIN32OLE::Utils
 
+  def to_variant
+    @dispatch
+  end
+
   def define_set(name)
     id = Dispatch.getIDOfName(@dispatch, name[0..-2])
 
     self.class.__send__(:define_method, name) do |*parms|
-      Dispatch.put(@dispatch, id, *parms)
+      Dispatch.put(@dispatch, id, *to_variants(*parms))
       nil # TODO: Should set's return nil?
     end
   end
@@ -165,7 +169,7 @@ class WIN32OLE
     id = Dispatch.getIDOfName(@dispatch, name)
 
     self.class.__send__(:define_method, name) do |*parms|
-      from_variant(Dispatch.call(@dispatch, id, *parms))
+      from_variant(Dispatch.call(@dispatch, id, *to_variants(*parms)))
     end
   end
 end

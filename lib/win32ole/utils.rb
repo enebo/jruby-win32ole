@@ -14,6 +14,10 @@ class WIN32OLE
       value
     end
 
+    def to_variants(*values)
+      values.collect {|v| v.respond_to?(:to_variant) ? v.to_variant : v }
+    end
+
     def from_variant(value)
       object = VariantUtilities.variant_to_object(value)
       object.kind_of?(Dispatch) ? WIN32OLE.new(object) : object
