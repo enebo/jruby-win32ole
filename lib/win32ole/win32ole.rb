@@ -19,8 +19,8 @@ class WIN32OLE
     else
       @dispatch = Dispatch.new WIN32OLE.to_progid(SafeStringValue(id))
     end
-  rescue ComFailException
-    raise WIN32OLERuntimeError
+  rescue ComFailException => e
+    raise WIN32OLERuntimeError.new(e)
   end
 
   # Needs to support property gets and sets as well as methods
@@ -66,7 +66,7 @@ class WIN32OLE
 
   def ole_method(name)
     all_methods(type_info) do |*args|
-      return WIN32OLE_METHOD.new(nil, *args) if name == docs.name
+      return WIN32OLE_METHOD.new(nil, *args) if name == args[3].name
       nil
     end
   end
