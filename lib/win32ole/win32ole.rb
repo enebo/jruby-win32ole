@@ -148,13 +148,13 @@ class WIN32OLE
     end
   end
 
-  private
-
-  include WIN32OLE::Utils
-
   def to_variant
     @dispatch
   end
+
+  private
+
+  include WIN32OLE::Utils
 
   def define_set(name)
     id = Dispatch.getIDOfName(@dispatch, name[0..-2])
