@@ -24,6 +24,8 @@ class WIN32OLE
     end
 
     def all_methods(typeinfo, &block) # MRI: olemethod_from_typeinfo
+      return unless typeinfo # Not all ole servers have this info
+
       # Find method in this type.
       ret = find_all_methods_in(nil, typeinfo, &block)
       return ret if ret
