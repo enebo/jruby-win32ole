@@ -1,6 +1,8 @@
 require 'java'
 require 'jacob.jar'
 
+import java.util.Calendar
+
 import com.jacob.com.Automation
 import com.jacob.com.ComFailException
 import com.jacob.com.ComThread

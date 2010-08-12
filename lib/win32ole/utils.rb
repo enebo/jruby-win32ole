@@ -20,7 +20,27 @@ class WIN32OLE
 
     def from_variant(value)
       object = VariantUtilities.variant_to_object(value)
-      object.kind_of?(Dispatch) ? WIN32OLE.new(object) : object
+      case object
+      when Dispatch then
+        WIN32OLE.new(object)
+      when java.util.Date then
+        java_date2ruby_time(object)
+      else
+        object
+      end
+    end
+
+    # Simliar to MRI:vtdate2rbtime but we work with Java date instead of
+    # raw variant type
+    def java_date2ruby_time(date)
+      calendar = Calendar.get_instance
+
+      Time.local(calendar.get(Calendar::YEAR) - 1900,
+               calendar.get(Calendar::MONTH),
+               calendar.get(Calendar::DAY_OF_MONTH),
+               calendar.get(Calendar::HOUR_OF_DAY),
+               calendar.get(Calendar::MINUTE),
+               calendar.get(Calendar::SECOND))
     end
 
     def all_methods(typeinfo, &block) # MRI: olemethod_from_typeinfo
