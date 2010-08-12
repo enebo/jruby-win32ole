@@ -82,13 +82,19 @@ class WIN32OLE
   end
 
   def _getproperty(dispid, args, arg_types)
-    # TODO: What verification needs to happen with arg_types?
-    from_variant(Dispatch.get(@dispatch, dispid, *to_variants(*args)))
+    # TODO: What verification needs to happen with arg_types. Jacob doesn't 
+    #   seem to have an analogue
+    variant_args = to_variants(*args).to_java(java.lang.Object)
+    error_args = Array.new(args.length, 0).to_java(:int)
+    from_variant(Dispatch.invoke(@dispatch, dispid, Dispatch::Get, variant_args, error_args))
   end
 
   def _setproperty(dispid, args, arg_types)
-    # TODO: What verification needs to happen with arg_types?
-    Dispatch.put(@dispatch, dispid, *to_variants(*args))
+    # TODO: What verification needs to happen with arg_types. Jacob doesn't 
+    #   seem to have an analogue
+    variant_args = to_variants(*args).to_java(java.lang.Object)
+    error_args = Array.new(args.length, 0).to_java(:int)
+    Dispatch.invoke(@dispatch, dispid, Dispatch::Put, variant_args, error_args)
   end
 
   # TODO: All these methods in MRI do many continues on error!!!
