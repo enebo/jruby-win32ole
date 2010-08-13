@@ -1,5 +1,8 @@
 class WIN32OLE
   module Utils
+    # FIXME: I don't know specifically if this is a GMT or local date?
+    OUT_OF_RANGE_DATE = Time.local(1899, 12, 30)
+
     def SafeStringValue(str)
       return str if str.kind_of?(::String)
       if str.respond_to?(:to_str)
@@ -22,20 +25,31 @@ class WIN32OLE
       object = VariantUtilities.variant_to_object(value)
       case object
       when Dispatch then
-        WIN32OLE.new(object)
+        object = WIN32OLE.new(object)
       when java.util.Date then
-        java_date2ruby_time(object)
-      else
-        object
+        object = java_date2ruby_time(object)
       end
+
+      # Jacob will return null on out of bound dates whereas MRI returns
+      # some date windows normally returns.  We will match this.
+      if object.nil? 
+        case value.getvt
+        when Variant::VariantDate, (Variant::VariantDate|Variant::VariantByref) then
+          object = OUT_OF_RANGE_DATE
+          
+        end
+      end
+
+      object
     end
 
     # Simliar to MRI:vtdate2rbtime but we work with Java date instead of
     # raw variant type
     def java_date2ruby_time(date)
       calendar = Calendar.get_instance
+      calendar.time = date
 
-      Time.local(calendar.get(Calendar::YEAR) - 1900,
+      Time.local(calendar.get(Calendar::YEAR),
                calendar.get(Calendar::MONTH),
                calendar.get(Calendar::DAY_OF_MONTH),
                calendar.get(Calendar::HOUR_OF_DAY),
