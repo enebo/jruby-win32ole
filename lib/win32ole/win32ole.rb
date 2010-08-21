@@ -92,9 +92,15 @@ class WIN32OLE
   def _setproperty(dispid, args, arg_types)
     # TODO: What verification needs to happen with arg_types. Jacob doesn't 
     #   seem to have an analogue
-    variant_args = to_variants(*args).to_java(java.lang.Object)
+    variant_args = to_variants(args).to_java(java.lang.Object)
     error_args = Array.new(args.length, 0).to_java(:int)
     Dispatch.invoke(@dispatch, dispid, Dispatch::Put, variant_args, error_args)
+  end
+
+  def setproperty(name, *args)
+    variant_args = to_variants(*args).to_java(java.lang.Object)
+    error_args = Array.new(args.length, 0).to_java(:int)
+    Dispatch.invoke(@dispatch, name, Dispatch::Put, variant_args, error_args)
   end
 
   # TODO: All these methods in MRI do many continues on error!!!
@@ -166,7 +172,8 @@ class WIN32OLE
     id = Dispatch.getIDOfName(@dispatch, name[0..-2])
 
     self.class.__send__(:define_method, name) do |*parms|
-      Dispatch.put(@dispatch, id, *to_variants(*parms))
+      variant_args = to_variants(parms)
+      Dispatch.put(@dispatch, id, *variant_args)
       nil # TODO: Should set's return nil?
     end
   end
@@ -175,7 +182,8 @@ class WIN32OLE
     id = Dispatch.getIDOfName(@dispatch, name)
 
     self.class.__send__(:define_method, name) do |*parms|
-      from_variant(Dispatch.call(@dispatch, id, *to_variants(*parms)))
+      variant_args = to_variants(parms)
+      from_variant(Dispatch.call(@dispatch, id, *variant_args))
     end
   end
 end

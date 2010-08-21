@@ -17,10 +17,12 @@ class WIN32OLE
       value
     end
 
-    def to_variants(*values)
+    def to_variants(values, types=nil)
       values.collect {|v| v.respond_to?(:to_variant) ? v.to_variant : v }
     end
 
+    # Convert the supplied variant value to an equivalent Ruby value.
+    # If dispose is true then also dispose the variant itself.
     def from_variant(value)
       object = VariantUtilities.variant_to_object(value)
       case object
