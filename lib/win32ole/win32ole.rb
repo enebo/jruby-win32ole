@@ -48,8 +48,7 @@ class WIN32OLE
 
   # Iterates over each item of this OLE server that supports IEnumVARIANT 
   def each
-    # TODO: Make EnumVariant have builtin each
-    enum_variant = EnumVariant.new @dispatch
+    enum_variant = @dispatch.to_enum_variant
 
     while enum_variant.has_more_elements
       yield from_variant(enum_variant.next_element)
