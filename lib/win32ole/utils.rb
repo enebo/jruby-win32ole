@@ -34,7 +34,7 @@ class WIN32OLE
 
       # Jacob will return null on out of bound dates whereas MRI returns
       # some date windows normally returns.  We will match this.
-      if object.nil? 
+      if object.nil? && !value.nil?
         case value.getvt
         when Variant::VariantDate, (Variant::VariantDate|Variant::VariantByref) then
           object = OUT_OF_RANGE_DATE
