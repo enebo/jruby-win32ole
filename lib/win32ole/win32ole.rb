@@ -43,7 +43,7 @@ class WIN32OLE
 
   # Sets the named property in the OLE automation object. 
   def []=(property_name, value)
-    Dispatch.put(@dispatch, property_name, *to_variants(value))
+    Dispatch.put(@dispatch, property_name, *to_variants([value]))
   end
 
   # Iterates over each item of this OLE server that supports IEnumVARIANT 
