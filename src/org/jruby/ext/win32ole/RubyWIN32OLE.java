@@ -108,7 +108,8 @@ public class RubyWIN32OLE extends RubyObject {
     public IRubyObject method_missing(ThreadContext context, IRubyObject[] args) {
         String methodName = args[0].asJavaString();
         
-        if (methodName.endsWith("=")) return invokeSet(context, methodName, args);
+        if (methodName.endsWith("=")) return invokeSet(context, 
+                methodName.substring(0, methodName.length() - 1), args);
 
         return invokeMethodOrGet(context, methodName, args);
     }
@@ -146,7 +147,6 @@ public class RubyWIN32OLE extends RubyObject {
         Object[] objectArgs = new Object[argsArraySize];
         for (int i = 0; i < argsArraySize; i++) {
             Object object = toObject(argsArray.eltInternal(i));
-            System.out.println("OBJ: " + object.getClass().getSimpleName());
             objectArgs[i] = object;
         }
         // TODO: Maybe share these since we don't actually use them
@@ -158,12 +158,18 @@ public class RubyWIN32OLE extends RubyObject {
         return fromVariant(context.getRuntime(), returnValue);
     }
 
+    @JRubyMethod(required = 1, rest = true)
+    public IRubyObject setproperty(ThreadContext context, IRubyObject[] args) {
+        String methodName = args[0].asJavaString();
+        
+        return invokeSet(context, methodName, args);
+    }
+
     private IRubyObject invokeSet(ThreadContext context, String methodName, IRubyObject[] args) {
-        String comName = methodName.substring(0, methodName.length() - 1);
-        
-        // TODO set/put can have array of elements too....
-        Dispatch.put(dispatch, comName, RubyWIN32OLE.toObject(args[1]));
-        
+        Object[] objectArgs = makeObjectArgs(args, 1);
+        int[] errorArgs = new int[objectArgs.length];
+
+        Dispatch.invoke(dispatch, methodName, Dispatch.Put, objectArgs, errorArgs);
         return context.getRuntime().getNil();
     }
 
