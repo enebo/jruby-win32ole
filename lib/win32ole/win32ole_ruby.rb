@@ -29,12 +29,6 @@ class WIN32OLE
     members
   end
 
-  def setproperty(name, *args)
-    variant_args = to_variants(*args).to_java(java.lang.Object)
-    error_args = Array.new(args.length, 0).to_java(:int)
-    Dispatch.invoke(dispatch, name, Dispatch::Put, variant_args, error_args)
-  end
-
   # TODO: All these methods in MRI do many continues on error!!!
 
   def type_info
@@ -90,10 +84,6 @@ class WIN32OLE
     rescue
       nil
     end
-  end
-
-  def to_variant
-    dispatch
   end
 
   private
