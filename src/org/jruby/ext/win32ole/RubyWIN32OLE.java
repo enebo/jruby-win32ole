@@ -116,7 +116,7 @@ public class RubyWIN32OLE extends RubyObject {
     @JRubyMethod()
     public IRubyObject ole_free(ThreadContext context) {
         dispatch.safeRelease();
-        
+
         return context.getRuntime().getNil();
     }
 
@@ -129,11 +129,10 @@ public class RubyWIN32OLE extends RubyObject {
 
     @JRubyMethod(name = "[]=", required = 2)
     public IRubyObject op_aset(ThreadContext context, IRubyObject property, IRubyObject value) {
-        Ruby runtime = context.getRuntime();
         String propertyName = property.asJavaString();
 
         Dispatch.put(dispatch, propertyName, toObject(value));
-        return runtime.getNil();
+        return context.getRuntime().getNil();
     }
 
     @JRubyMethod()
@@ -198,8 +197,14 @@ public class RubyWIN32OLE extends RubyObject {
     }
 
     private IRubyObject invokeMethodOrGet(ThreadContext context, String methodName, IRubyObject[] args) {
-        return fromVariant(context.getRuntime(),
-                Dispatch.callN(dispatch, methodName, makeObjectArgs(args, 1)));
+        Variant result;
+        if (args.length == 1) { // No-arg call
+            result = Dispatch.call(dispatch, methodName);
+        } else {
+            result = Dispatch.callN(dispatch, methodName, makeObjectArgs(args, 1));
+        }
+
+        return fromVariant(context.getRuntime(), result);
     }
 
     @Override
