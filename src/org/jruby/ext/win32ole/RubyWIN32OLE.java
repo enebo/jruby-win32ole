@@ -10,7 +10,6 @@ import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyInteger;
 import org.jruby.RubyObject;
-import org.jruby.RubyTime;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.javasupport.Java;
 import org.jruby.javasupport.JavaObject;
@@ -25,6 +24,7 @@ import win32ole.Win32oleService;
  */
 public class RubyWIN32OLE extends RubyObject {
     private static final Object[] EMPTY_OBJECT_ARGS = new Object[0];
+    private static final int[] EMPTY_ERROR_ARGS = new int[0];
     
     public static ObjectAllocator WIN32OLE_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klass) {
@@ -64,7 +64,6 @@ public class RubyWIN32OLE extends RubyObject {
         while (enumVariant.hasMoreElements()) {
             Variant value = enumVariant.nextElement();
             block.yield(context, fromVariant(runtime, value));
-                    
         }
 
         return runtime.getNil();
@@ -74,17 +73,13 @@ public class RubyWIN32OLE extends RubyObject {
     public IRubyObject _getproperty(ThreadContext context, IRubyObject dispid,
             IRubyObject args, IRubyObject argTypes) {
         RubyArray argsArray = args.convertToArray();
-        int argsArraySize = argsArray.size();
+        Object[] objectArgs = makeObjectArgs(argsArray);
         int dispatchId = (int) RubyInteger.num2long(dispid);
-        Variant returnValue;
         
-        if (argsArraySize == 0) {
+        Variant returnValue;
+        if (objectArgs.length == 0) {
             returnValue = Dispatch.call(dispatch, dispatchId);
         } else {
-            Object[] objectArgs = new Object[argsArraySize];
-            for (int i = 0; i < argsArraySize; i++) {
-                objectArgs[i] = toObject(argsArray.eltInternal(i));
-            }
             returnValue = Dispatch.call(dispatch, dispatchId, objectArgs);
         }
         return fromVariant(context.getRuntime(), returnValue);
@@ -102,6 +97,12 @@ public class RubyWIN32OLE extends RubyObject {
     @JRubyMethod(required = 1, rest = true)
     public IRubyObject invoke(ThreadContext context, IRubyObject[] args) {
         return method_missing(context, args);
+    }
+    
+    @JRubyMethod()
+    public IRubyObject _invoke(ThreadContext context, IRubyObject dispid,
+            IRubyObject args, IRubyObject typesArray) {
+        return invokeInternal(context, dispid, args, args, Dispatch.Method);
     }
 
     @JRubyMethod(required = 1, rest = true)
@@ -140,22 +141,7 @@ public class RubyWIN32OLE extends RubyObject {
     @JRubyMethod()
     public IRubyObject _setproperty(ThreadContext context, IRubyObject dispid,
             IRubyObject args, IRubyObject argTypes) {
-        RubyArray argsArray = args.convertToArray();
-        int argsArraySize = argsArray.size();
-        int dispatchId = (int) RubyInteger.num2long(dispid);
-
-        Object[] objectArgs = new Object[argsArraySize];
-        for (int i = 0; i < argsArraySize; i++) {
-            Object object = toObject(argsArray.eltInternal(i));
-            objectArgs[i] = object;
-        }
-        // TODO: Maybe share these since we don't actually use them
-        int[] errorArgs = new int[argsArraySize];
-        
-        Variant returnValue = Dispatch.invoke(dispatch, dispatchId, Dispatch.Put,
-                objectArgs, errorArgs);
-
-        return fromVariant(context.getRuntime(), returnValue);
+        return invokeInternal(context, dispid, args, argTypes, Dispatch.Put);
     }
 
     @JRubyMethod(required = 1, rest = true)
@@ -173,6 +159,21 @@ public class RubyWIN32OLE extends RubyObject {
         return context.getRuntime().getNil();
     }
 
+    private IRubyObject invokeInternal(ThreadContext context, IRubyObject dispid,
+            IRubyObject args, IRubyObject argTypes, int dispatchType) {
+        RubyArray argsArray = args.convertToArray();
+        int dispatchId = (int) RubyInteger.num2long(dispid);
+        Object[] objectArgs = makeObjectArgs(argsArray);
+        int[] errorArgs = makeErrorArgs(objectArgs.length);
+        Variant returnValue = Dispatch.invoke(dispatch, dispatchId, dispatchType,
+                objectArgs, errorArgs);
+
+        return fromVariant(context.getRuntime(), returnValue);
+    }
+    private int[] makeErrorArgs(int size) {
+        return size <= 0 ? EMPTY_ERROR_ARGS : new int[size];
+    }
+
     private Object[] makeObjectArgs(IRubyObject[] rubyArgs, int startIndex) {
         int length = rubyArgs.length;
         if (length - startIndex <= 0) return EMPTY_OBJECT_ARGS;
@@ -180,6 +181,19 @@ public class RubyWIN32OLE extends RubyObject {
         Object[] objectArgs = new Object[length - startIndex];
         for (int i = startIndex; i < length; i++) {
             objectArgs[i - startIndex] = RubyWIN32OLE.toObject(rubyArgs[i]);
+        }
+
+        return objectArgs;
+    }
+
+    private Object[] makeObjectArgs(RubyArray argsArray) {
+        int length = argsArray.size();
+        if (length <= 0) return EMPTY_OBJECT_ARGS;
+
+        Object[] objectArgs = new Object[length];
+        for (int i = 0; i < length; i++) {
+            Object object = toObject(argsArray.eltInternal(i));
+            objectArgs[i] = object;
         }
 
         return objectArgs;
@@ -232,4 +246,3 @@ public class RubyWIN32OLE extends RubyObject {
         return id;
     }
 }
-
