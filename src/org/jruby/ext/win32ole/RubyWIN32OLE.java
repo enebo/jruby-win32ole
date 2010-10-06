@@ -11,8 +11,6 @@ import org.jruby.RubyClass;
 import org.jruby.RubyInteger;
 import org.jruby.RubyObject;
 import org.jruby.anno.JRubyMethod;
-import org.jruby.javasupport.Java;
-import org.jruby.javasupport.JavaObject;
 import org.jruby.javasupport.JavaUtil;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.ObjectAllocator;
@@ -223,11 +221,14 @@ public class RubyWIN32OLE extends RubyObject {
                 return new RubyWIN32OLE(runtime, Win32oleService.getMetaClass(), variant.getDispatch());
             case Variant.VariantDate:
                 return date2ruby(runtime, variant.getDate());
+            case Variant.VariantInt:
+            case Variant.VariantShort:
+                return runtime.newFixnum(variant.getInt());
+            case Variant.VariantString:
+                return runtime.newString(variant.getString());
         }
 
-        IRubyObject rubyObject = JavaUtil.convertJavaToUsableRubyObject(runtime, variant.toJavaObject());
-
-        return rubyObject instanceof JavaObject ? Java.wrap(runtime, rubyObject) : rubyObject;
+        return JavaUtil.convertJavaToUsableRubyObject(runtime, variant.toJavaObject());
     }
 
     public static IRubyObject date2ruby(Ruby runtime, Date date) {
