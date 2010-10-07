@@ -74,13 +74,12 @@ public class RubyWIN32OLE extends RubyObject {
         Object[] objectArgs = makeObjectArgs(argsArray);
         int dispatchId = (int) RubyInteger.num2long(dispid);
         
-        Variant returnValue;
         if (objectArgs.length == 0) {
-            returnValue = Dispatch.call(dispatch, dispatchId);
-        } else {
-            returnValue = Dispatch.call(dispatch, dispatchId, objectArgs);
-        }
-        return fromVariant(context.getRuntime(), returnValue);
+            return fromObject(context.getRuntime(), Dispatch.callO(dispatch, dispatchId));
+        } 
+
+        return fromVariant(context.getRuntime(),
+                Dispatch.call(dispatch, dispatchId, objectArgs));
     }
 
     @JRubyMethod(required = 1, rest = true)
@@ -197,14 +196,11 @@ public class RubyWIN32OLE extends RubyObject {
     }
 
     private IRubyObject invokeMethodOrGet(ThreadContext context, String methodName, IRubyObject[] args) {
-        Variant result;
         if (args.length == 1) { // No-arg call
-            result = Dispatch.call(dispatch, methodName);
-        } else {
-            result = Dispatch.callN(dispatch, methodName, makeObjectArgs(args, 1));
-        }
-
-        return fromVariant(context.getRuntime(), result);
+            return fromObject(context.getRuntime(), Dispatch.callO(dispatch, methodName));
+        } 
+        return fromVariant(context.getRuntime(),
+                Dispatch.callN(dispatch, methodName, makeObjectArgs(args, 1)));
     }
 
     @Override
@@ -214,6 +210,24 @@ public class RubyWIN32OLE extends RubyObject {
 
     public static Object toObject(IRubyObject rubyObject) {
         return rubyObject.toJava(Object.class);
+    }
+
+    public static IRubyObject fromObject(Ruby runtime, Object object) {
+        if (object == null) return runtime.getNil();
+
+        if (object instanceof Boolean) {
+            return runtime.newBoolean(((Boolean) object).booleanValue());
+        } else if (object instanceof Dispatch) {
+            return new RubyWIN32OLE(runtime, Win32oleService.getMetaClass(), (Dispatch) object);
+        } else if (object instanceof Date) {
+            return date2ruby(runtime, (Date) object);
+        } else if (object instanceof Number) {
+            return runtime.newFixnum(((Number) object).intValue());
+        } else if (object instanceof String) {
+            return runtime.newString((String) object);
+        }
+
+        return JavaUtil.convertJavaToUsableRubyObject(runtime, object);
     }
 
     public static IRubyObject fromVariant(Ruby runtime, Variant variant) {

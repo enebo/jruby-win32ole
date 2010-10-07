@@ -31,6 +31,6 @@ class WIN32OLE_EVENT
   # Almost noop this.  We don't because it get CPU hot when people put this
   # in a hot loop!
   def self.message_loop
-    sleep 0.2
+    DispatchEvents.message_loop
   end
 end
