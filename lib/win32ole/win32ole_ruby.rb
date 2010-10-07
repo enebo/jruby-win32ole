@@ -1,4 +1,5 @@
 require 'win32ole/utils'
+require 'jruby'
 
 # Shorthand vocabulary:
 #  ti, oti - typeinfo or owner_typeinfo
@@ -58,7 +59,7 @@ class WIN32OLE
             name = first_var_name(info, var_desc)
             name = name[0].chr.upcase + name[1..-1] if name
             if constant?(name)
-              a_class.const_set name, var_desc.constant
+              a_class.const_set name, RubyWIN32OLE.from_variant(JRuby.runtime, var_desc.constant)
             else # vars which don't start [A-Z]?
               constants[name] = var_desc.constant
             end

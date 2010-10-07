@@ -4,20 +4,22 @@ require 'jacob.jar'
 require 'win32ole/win32ole'      # <- java native impl of WIN32OLE
 require 'win32ole/win32ole_ruby' # <- ruby impl of WIN32OLE
 
-import java.util.Calendar
+java_import java.util.Calendar
 
-import com.jacob.com.Variant
-import com.jacob.com.Automation
-import com.jacob.com.ComFailException
-import com.jacob.com.ComThread
-import com.jacob.com.Dispatch
-import com.jacob.com.DispatchEvents
-import com.jacob.com.EnumVariant
-import com.jacob.com.TypeInfo
-import com.jacob.com.TypeLib
-import com.jacob.com.VarDesc
+java_import com.jacob.com.Variant
+java_import com.jacob.com.Automation
+java_import com.jacob.com.ComFailException
+java_import com.jacob.com.ComThread
+java_import com.jacob.com.Dispatch
+java_import com.jacob.com.DispatchEvents
+java_import com.jacob.com.EnumVariant
+java_import com.jacob.com.TypeInfo
+java_import com.jacob.com.TypeLib
+java_import com.jacob.com.VarDesc
+java_import com.jacob.com.VariantUtilities
 
-import com.jacob.com.VariantUtilities
+java_import org.jruby.ext.win32ole.RubyWIN32OLE
+
 
 require 'win32ole/win32ole_error'
 require 'win32ole/win32ole_method'
