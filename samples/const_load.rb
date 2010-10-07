@@ -5,4 +5,6 @@ end
 
 ie = WIN32OLE.new('InternetExplorer.Application')
 WIN32OLE.const_load(ie, FOO)
-puts FOO.constants
+FOO.constants.each do |c|
+  puts "#{c}: #{FOO.const_get(c)}"
+end
