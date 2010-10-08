@@ -1,7 +1,8 @@
 class WIN32OLE_EVENT
-  def initialize(ole, event_name)
+  def initialize(ole, event_name=nil)
     @event_handlers = {}
-    # TODO: Argument errors + specs
+
+    raise TypeError.new("1st parameter must be WIN32OLE object") if !ole.kind_of? WIN32OLE
 
     if event_name.nil? # Default event name
       # TODO: get default event
