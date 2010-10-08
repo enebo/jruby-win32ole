@@ -4,7 +4,7 @@ class WIN32OLE_TYPE
   def initialize(*args)
     case args.length
     when 2 then 
-      typelib_name, olename = SafeStringValue(args[0]),SafeStringValue(args[1])
+      typelib_name, olename = SafeStringValue(args[0]), SafeStringValue(args[1])
       @typelib = WIN32OLE_TYPELIB.new(typelib_name) # Internal call
       find_all_typeinfo(@typelib.typelib) do |info, docs|
         if (docs.name == olename)
@@ -12,6 +12,7 @@ class WIN32OLE_TYPE
           break
         end
       end
+      raise WIN32OLERuntimeError.new("not found `#{olename}` in `#{typelib_name}") unless @typeinfo
     when 3 then
       @typelib, @typeinfo, @docs = *args
     else
@@ -54,6 +55,31 @@ class WIN32OLE_TYPE
       nil
     end
     members
+  end
+
+  def ole_type
+    case typekind
+    when TypeInfo::TYPEKIND_ENUM then
+      "Enum"
+    when TypeInfo::TYPEKIND_RECORD then
+      "Record"
+    when TypeInfo::TYPEKIND_MODULE then
+      "Module"
+    when TypeInfo::TYPEKIND_INTERFACE then
+      "Interface"
+    when TypeInfo::TYPEKIND_DISPATCH then
+      "Dispatch"
+    when TypeInfo::TYPEKIND_COCLASS then
+      "Class"
+    when TypeInfo::TYPEKIND_ALIAS then
+      "Alias"
+    when TypeInfo::TYPEKIND_UNION then
+      "Union"
+    when TypeInfo::TYPEKIND_MAX then
+      "Max"
+    else
+      nil
+    end
   end
 
   def variables
