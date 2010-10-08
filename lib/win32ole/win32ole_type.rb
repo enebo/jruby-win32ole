@@ -82,6 +82,14 @@ class WIN32OLE_TYPE
     end
   end
 
+  def progid
+    @typeinfo.progid
+  end
+
+  def to_s
+    name
+  end
+  
   def variables
     variables = []
     all_vars(@typeinfo) do |desc, name|
@@ -102,6 +110,27 @@ class WIN32OLE_TYPE
     # This is obsolete, but easy to emulate
     def typelibs
       WIN32OLE_TYPELIB.typelibs.collect {|t| t.name }
+    end
+
+    def progids
+      array = []
+      Win32::Registry::HKEY_CLASSES_ROOT.open('CLSID') do |reg|
+        reg.each_key do |clsid, wtime|
+          reg.open(clsid) do |clsid_reg|
+            clsid_reg.each_key do |key, wtime|
+              name = nil
+              if key == "ProgID"
+                clsid_reg.open(key) {|key_reg| name = key_reg.read(nil)[1] }
+              end
+              if !name && key == "VersionIndependentProgID"
+                clsid_reg.open(key) {|key_reg| name = key_reg.read(nil)[1] }
+              end
+              array << name if name
+            end
+          end
+        end
+      end
+      array
     end
 
     def ole_classes(tlib)
