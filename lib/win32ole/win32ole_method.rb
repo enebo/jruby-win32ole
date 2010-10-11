@@ -35,10 +35,35 @@ class WIN32OLE_METHOD
     @docs.help_file
   end
 
+  def invkind
+    @desc.invkind
+  end
+
   def name
     @docs.name
   end
   alias :to_s :name
+
+  def params
+    arr = []
+    @desc.parameters.to_a.each_with_index do |param, i|
+      arr << WIN32OLE_PARAM.new(self, i, param)
+    end
+    arr
+  end
+
+  def size_opt_params
+    @desc.opt_params_count
+  end
+  
+  def size_params
+    @desc.params_count
+  end
+
+  def visible?
+    (@desc.flags & (FuncDesc::FUNCFLAG_FRESTRICTED | FuncDesc::FUNCFLAG_FHIDDEN |
+      FuncDesc::FUNCFLAG_FNONBROWSABLE)) == 0
+  end
 
   def inspect
     name

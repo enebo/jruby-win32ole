@@ -188,6 +188,78 @@ class WIN32OLE
       nil
     end
 
+    def typedesc_value(vt, type_details=nil)
+      type_string = case vt
+      when Variant::VariantShort then
+        "I2"
+      when Variant::VariantInt then
+        "I4"
+      when Variant::VariantFloat then
+        "R4"
+      when Variant::VariantDouble then
+        "R8"
+      when Variant::VariantCurrency then
+        "CY"
+      when Variant::VariantDate then
+        "DATE"
+      when Variant::VariantString then
+        "BSTR"
+      when Variant::VariantBoolean then
+        "BOOL"
+      when Variant::VariantVariant then
+        "VARIANT"
+      when Variant::VariantDecimal then
+        "DECIMAL"
+#      when Variant::VariantInt then
+#        "I1"
+      when Variant::VariantByte then
+        "UI1"
+#      when Variant::VariantInt then
+#        "UI2"
+#      when Variant::VariantInt then
+#        "UI4"
+      when Variant::VariantLongInt then
+        "I8"
+#      when Variant::VariantInt then
+#        "UI8"
+#      when Variant::VariantInt then
+#        "INT"
+#      when Variant::VariantInt then
+#        "UINT"
+#      when Variant::VariantInt then
+#        "VOID"
+#      when Variant::VariantInt then
+#        "HRESULT"
+      when Variant::VariantPointer then
+        # TODO: Add detail logic
+        "PTR"
+#      when Variant::VariantInt then
+#        "SAFEARRAY"
+#      when Variant::VariantInt then
+#        "CARRAY"
+#      when Variant::VariantInt then
+#        "USERDEFINED"
+      when Variant::VariantObject then
+        "UNKNOWN"
+      when Variant::VariantDispatch then
+        "DISPATCH"
+      when Variant::VariantError then
+        "ERROR"
+#      when Variant::VariantInt then
+#        "LPWSTR"
+#      when Variant::VariantInt then
+#        "LPSTR"
+      else
+        "Uknown Type #{vt}"
+      end
+
+      if type_details
+        type_details << type_string
+      end
+
+      type_string
+    end
+
     def variable_kind_string(varkind)
       case varkind
         when VarDesc::VAR_PERINSTANCE then

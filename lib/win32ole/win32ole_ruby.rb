@@ -30,6 +30,28 @@ class WIN32OLE
     members
   end
 
+  def ole_get_methods
+    members = []
+    all_methods(type_info) do |typeinfo, old_typeinfo, desc, docs, i|
+      if desc.invkind & Dispatch::Put
+        members << WIN32OLE_METHOD.new(nil, typeinfo, old_typeinfo, desc, docs, i)
+      end
+      nil
+    end
+    members
+  end
+
+  def ole_put_methods
+    members = []
+    all_methods(type_info) do |typeinfo, old_typeinfo, desc, docs, i|
+      if desc.invkind & (Dispatch::Put|Dispatch::PutRef)
+        members << WIN32OLE_METHOD.new(nil, typeinfo, old_typeinfo, desc, docs, i)
+      end
+      nil
+    end
+    members
+  end
+
   # TODO: All these methods in MRI do many continues on error!!!
 
   def type_info

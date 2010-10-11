@@ -13,6 +13,7 @@ java_import com.jacob.com.ComThread
 java_import com.jacob.com.Dispatch
 java_import com.jacob.com.DispatchEvents
 java_import com.jacob.com.EnumVariant
+java_import com.jacob.com.FuncDesc
 java_import com.jacob.com.TypeInfo
 java_import com.jacob.com.TypeLib
 java_import com.jacob.com.VarDesc
@@ -26,5 +27,6 @@ require 'win32ole/win32ole_method'
 require 'win32ole/win32ole_variant'
 require 'win32ole/win32ole_variable'
 require 'win32ole/win32ole_event'
+require 'win32ole/win32ole_param'
 require 'win32ole/win32ole_type'
 require 'win32ole/win32ole_typelib'
