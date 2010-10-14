@@ -222,6 +222,12 @@ public class RubyWIN32OLE extends RubyObject {
         } else if (object instanceof Date) {
             return date2ruby(runtime, (Date) object);
         } else if (object instanceof Number) {
+            if (object instanceof Double) {
+                return runtime.newFloat(((Double) object).doubleValue());
+            } else if (object instanceof Float) {
+                return runtime.newFloat(((Float) object).doubleValue());
+            }
+
             return runtime.newFixnum(((Number) object).intValue());
         } else if (object instanceof String) {
             return runtime.newString((String) object);
@@ -243,6 +249,10 @@ public class RubyWIN32OLE extends RubyObject {
             case Variant.VariantInt:
             case Variant.VariantShort:
                 return runtime.newFixnum(variant.getInt());
+            case Variant.VariantDouble:
+                return runtime.newFloat(variant.getDouble());
+            case Variant.VariantFloat:
+                return runtime.newFloat(variant.getFloat());
             case Variant.VariantString:
                 return runtime.newString(variant.getString());
         }
