@@ -8,7 +8,8 @@ class WIN32OLE_EVENT
       # TODO: get default event
     end
 
-    org.jruby.ext.win32ole.RubyDispatchEvents.setupDispatchEventHandler(ole, self)
+    dispatch = ole.dispatch
+    DispatchEvents.new dispatch, RubyInvocationProxy.new(self), dispatch.program_id
   end
 
   def on_event(name=nil, &block)

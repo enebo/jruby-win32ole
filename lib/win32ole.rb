@@ -20,6 +20,7 @@ java_import com.jacob.com.VarDesc
 java_import com.jacob.com.VariantUtilities
 
 java_import org.jruby.ext.win32ole.RubyWIN32OLE
+java_import org.jruby.ext.win32ole.RubyInvocationProxy
 
 
 require 'win32ole/win32ole_error'
