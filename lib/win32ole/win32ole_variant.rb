@@ -7,9 +7,6 @@ class WIN32OLE
     VT_CY = 6 # Currency
     VT_DATE = 7 # Date
     VT_BSTR = 8 # String
-    VT_USERDEFINED = 0
-
-    VT_PTR = 26 # Pointer
     VT_DISPATCH = 9 # Dispatch
     VT_ERROR = 10 # Error
     VT_BOOL = 11 # Boolean
@@ -20,8 +17,15 @@ class WIN32OLE
     VT_UI2 = 18 # Nothing in Jacob
     VT_UI4 = 19 # Nothing in Jacob
     VT_I8 = 20 # Not in MRI win32ole but in Jacob
+    VT_UI8 = 21 # !Jacob
     VT_INT = 22 # Nothing in Jacob
     VT_UINT = 23 # Nothing in Jacob
+    VT_VOID = 24 # !Jacob
+    VT_HRESULT = 25 # !Jacob
+    VT_PTR = 26 # Pointer
+    VT_SAFEARRAY = 27 # !Jacob
+    VT_CARRAY = 28 # !Jacob
+    VT_USERDEFINED = 29 # !Jacob
     VT_ARRAY = 8192 # Array
     VT_BYREF = 16384 # Reference
   end
