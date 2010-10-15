@@ -23,6 +23,35 @@ class WIN32OLE_METHOD
     @desc.memid
   end
 
+  def event?
+    return false if @owner_typeinfo.typekind != TypeInfo::TYPEKIND_COCLASS
+
+    @owner_typeinfo.impl_types_count.times do |i|
+      begin
+        flags = @owner_typeinfo.get_impl_type_flags(i)
+
+        if flags & TypeInfo::IMPLTYPEFLAG_FSOURCE
+          href = @owner_typeinfo.get_ref_type_of_impl_type(i)
+          ref_typeinfo = @owner_typeinfo.get_ref_type_info(href)
+          func_desc = ref_typeinfo.func_desc(@index)
+          documentation = ref_typeinfo.documentation(func_desc.memid)
+
+          return true if documentation.name == name
+        end
+      rescue ComFailException => e
+      end
+    end
+    false
+  end
+
+  def event_interface
+    return nil unless event?
+
+    typelib = @typeinfo.containing_type_lib
+    documentation = typelib.documentation(typelib.index)
+    documentation.name
+  end
+
   def helpcontext
     @docs.help_context
   end
