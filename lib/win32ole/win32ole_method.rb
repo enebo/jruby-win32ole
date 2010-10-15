@@ -39,10 +39,31 @@ class WIN32OLE_METHOD
     @desc.invkind
   end
 
+  def invoke_kind
+    invkind = @desc.invkind
+    if invkind & Dispatch::Get && invkind & Dispatch::Put
+      return "PROPERTY"
+    elsif invkind & Dispatch::Get
+      return "PROPERTYGET"
+    elsif invkind & Dispatch::Put
+      return "PROPERTYPUT"
+    elsif invkind & Dispatch::PutRef
+      return "PROPERTYPUTREF"
+    elsif invkind & Dispatch::Method
+      return "FUNC"
+    else
+      return "UNKOWN"
+    end
+  end
+
   def name
     @docs.name
   end
   alias :to_s :name
+
+  def offset_vtbl
+    @desc.vtable_offset
+  end
 
   def params
     arr = []
@@ -50,6 +71,20 @@ class WIN32OLE_METHOD
       arr << WIN32OLE_PARAM.new(self, i, param)
     end
     arr
+  end
+
+  def return_type
+    typedesc_value(@desc.return_type.vt)
+  end
+
+  def return_type_detail
+    details = []
+    typedesc_value(@desc.return_type.vt, details)
+    details
+  end
+
+  def return_vtype
+    @desc.return_type.vt
   end
 
   def size_opt_params
