@@ -33,7 +33,7 @@ class WIN32OLE
   def ole_get_methods
     members = []
     all_methods(type_info) do |typeinfo, old_typeinfo, desc, docs, i|
-      if desc.invkind & Dispatch::Put
+      if desc.invkind & Dispatch::Get
         members << WIN32OLE_METHOD.new(nil, typeinfo, old_typeinfo, desc, docs, i)
       end
       nil
