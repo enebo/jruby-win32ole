@@ -86,6 +86,12 @@ class WIN32OLE_TYPE
     @typeinfo.progid
   end
 
+  def src_type
+    return nil if @typeinfo.typekind != TypeInfo::TYPEKIND_ALIAS
+
+    typedesc_value @typeinfo.alias_vt
+  end
+
   def to_s
     name
   end

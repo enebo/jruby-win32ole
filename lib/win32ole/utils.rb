@@ -57,6 +57,17 @@ class WIN32OLE
                calendar.get(Calendar::SECOND))
     end
 
+    def methods_with_flag(flag)
+      members = []
+      all_methods(typeinfo_from_ole) do |typeinfo, old_typeinfo, desc, docs, i|
+        if desc.invkind & flag
+          members << WIN32OLE_METHOD.new(nil, typeinfo, old_typeinfo, desc, docs, i)
+        end
+        nil
+      end
+      members
+    end
+
     def all_methods(typeinfo, &block) # MRI: olemethod_from_typeinfo
       return unless typeinfo # Not all ole servers have this info
 
@@ -94,14 +105,13 @@ class WIN32OLE
     end
 
     def typeinfo_from_ole # MRI: typeinfo_from_ole
-      typeinfo = @dispatch.type_info
+      typeinfo = type_info
       docs = typeinfo.get_documentation(-1)
       type_lib = typeinfo.get_containing_type_lib
       type_lib.get_type_info_count.times do |i|
         begin
-          ti = type_lib.get_type_info(i)
           tdocs = type_lib.get_documentation(i)
-          return typelib.get_type_info(i) if tdocs.name == docs.name
+          return type_lib.get_type_info(i) if tdocs.name == docs.name
         rescue ComFailException => e
           # We continue on failure. 
         end

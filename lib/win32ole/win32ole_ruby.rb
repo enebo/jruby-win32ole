@@ -14,7 +14,7 @@ class WIN32OLE
   CP_UTF8 = 65001
 
   def ole_method(name)
-    all_methods(type_info) do |*args|
+    all_methods(typeinfo_from_ole) do |*args|
       return WIN32OLE_METHOD.new(nil, *args) if name == args[3].name
       nil
     end
@@ -23,36 +23,36 @@ class WIN32OLE
 
   def ole_methods
     members = []
-    all_methods(type_info) do |*args|
+    all_methods(typeinfo_from_ole) do |*args|
       members << WIN32OLE_METHOD.new(nil, *args)
       nil
     end
     members
   end
 
+  def ole_func_methods
+    methods_with_flag(Dispatch::Method)
+  end
+
   def ole_get_methods
-    members = []
-    all_methods(type_info) do |typeinfo, old_typeinfo, desc, docs, i|
-      if desc.invkind & Dispatch::Get
-        members << WIN32OLE_METHOD.new(nil, typeinfo, old_typeinfo, desc, docs, i)
-      end
-      nil
-    end
-    members
+    methods_with_flag(Dispatch::Get)
   end
 
   def ole_put_methods
-    members = []
-    all_methods(type_info) do |typeinfo, old_typeinfo, desc, docs, i|
-      if desc.invkind & (Dispatch::Put|Dispatch::PutRef)
-        members << WIN32OLE_METHOD.new(nil, typeinfo, old_typeinfo, desc, docs, i)
-      end
-      nil
-    end
-    members
+    methods_with_flag(Dispatch::Put|Dispatch::PutRef)
   end
 
-  # TODO: All these methods in MRI do many continues on error!!!
+  def ole_type
+    typelib = type_info.containing_type_lib
+    docs = typelib.documentation(typelib.index)
+    WIN32OLE_TYPE.new typelib, type_info, docs
+  end
+  alias :ole_obj_help :ole_type
+
+  def ole_typelib
+    typelib = type_info.containing_type_lib
+    WIN32OLE_TYPELIB.new typelib, nil
+  end
 
   def type_info
     dispatch.type_info
