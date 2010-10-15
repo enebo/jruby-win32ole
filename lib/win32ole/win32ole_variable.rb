@@ -5,7 +5,14 @@ class WIN32OLE_VARIABLE
     @type, @var_desc, @name = type, var_desc, name
   end
 
-  # TODO: Implement ole_type, ole_type_detail
+  def ole_type
+    @type.ole_type # MRI gets from vardesc, but why shouldn't this work?
+  end
+
+  def ole_type_detail
+    # TODO: Fill in other details when they actually exist
+    [@type.ole_type]
+  end
 
   def value
     from_variant(@var_desc.constant)
