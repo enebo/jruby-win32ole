@@ -26,9 +26,7 @@ class WIN32OLE_PARAM
   end
 
   def ole_type_detail
-    details = []
-    typedesc_value(@param.vt, details)
-    details
+    typedesc_value(@param.vt, [])
   end
 
   def output?

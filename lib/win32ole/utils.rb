@@ -191,75 +191,15 @@ class WIN32OLE
     end
 
     def typedesc_value(vt, type_details=nil)
-      type_string = case vt
-      when Variant::VariantShort then
-        "I2"
-      when Variant::VariantInt then
-        "I4"
-      when Variant::VariantFloat then
-        "R4"
-      when Variant::VariantDouble then
-        "R8"
-      when Variant::VariantCurrency then
-        "CY"
-      when Variant::VariantDate then
-        "DATE"
-      when Variant::VariantString then
-        "BSTR"
-      when Variant::VariantBoolean then
-        "BOOL"
-      when Variant::VariantVariant then
-        "VARIANT"
-      when Variant::VariantDecimal then
-        "DECIMAL"
-      when WIN32OLE::VARIANT::VT_I1 then
-        "I1"
-      when WIN32OLE::VARIANT::VT_UI1 then
-        "UI1"
-      when WIN32OLE::VARIANT::VT_UI2 then
-        "UI2"
-      when WIN32OLE::VARIANT::VT_UI4 then
-        "UI4"
-      when Variant::VariantLongInt then
-        "I8"
-      when WIN32OLE::VARIANT::VT_UI8 then
-        "UI8"
-      when WIN32OLE::VARIANT::VT_INT then
-        "INT"
-      when WIN32OLE::VARIANT::VT_UINT then
-        "UINT"
-      when WIN32OLE::VARIANT::VT_VOID then
-        "VOID"
-      when WIN32OLE::VARIANT::VT_HRESULT then
-        "HRESULT"
-      when Variant::VariantPointer then
+      type_string = WIN32OLE::VARIANT.variant_to_string(vt) || "Unknown Type #{vt}"
+
+      type_details << type_string if type_details
+
+      if vt == WIN32OLE::VARIANT::VT_PTR && type_details
         # TODO: Add detail logic
-        "PTR"
-      when WIN32OLE::VARIANT::VT_SAFEARRAY then
-        "SAFEARRAY"
-      when WIN32OLE::VARIANT::VT_CARRAY then
-        "CARRAY"
-      when WIN32OLE::VARIANT::VT_USERDEFINED then
-        "USERDEFINED"
-      when Variant::VariantObject then
-        "UNKNOWN"
-      when Variant::VariantDispatch then
-        "DISPATCH"
-      when Variant::VariantError then
-        "ERROR"
-#      when Variant::VariantInt then
-#        "LPWSTR"
-#      when Variant::VariantInt then
-#        "LPSTR"
-      else
-        "Uknown Type #{vt}"
       end
 
-      if type_details
-        type_details << type_string
-      end
-
-      type_string
+      type_details ? type_details : type_string
     end
 
     def variable_kind_string(varkind)

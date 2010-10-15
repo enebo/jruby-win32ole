@@ -78,9 +78,7 @@ class WIN32OLE_METHOD
   end
 
   def return_type_detail
-    details = []
-    typedesc_value(@desc.return_type.vt, details)
-    details
+    typedesc_value(@desc.return_type.vt, [])
   end
 
   def return_vtype
