@@ -1,3 +1,5 @@
+require 'win32ole/win32ole_variant'
+
 class WIN32OLE
   module Utils
     # FIXME: I don't know specifically if this is a GMT or local date?
@@ -210,35 +212,35 @@ class WIN32OLE
         "VARIANT"
       when Variant::VariantDecimal then
         "DECIMAL"
-#      when Variant::VariantInt then
-#        "I1"
-      when Variant::VariantByte then
+      when WIN32OLE::VARIANT::VT_I1 then
+        "I1"
+      when WIN32OLE::VARIANT::VT_UI1 then
         "UI1"
-#      when Variant::VariantInt then
-#        "UI2"
-#      when Variant::VariantInt then
-#        "UI4"
+      when WIN32OLE::VARIANT::VT_UI2 then
+        "UI2"
+      when WIN32OLE::VARIANT::VT_UI4 then
+        "UI4"
       when Variant::VariantLongInt then
         "I8"
-#      when Variant::VariantInt then
-#        "UI8"
-#      when Variant::VariantInt then
-#        "INT"
-#      when Variant::VariantInt then
-#        "UINT"
-#      when Variant::VariantInt then
-#        "VOID"
-#      when Variant::VariantInt then
-#        "HRESULT"
+      when WIN32OLE::VARIANT::VT_UI8 then
+        "UI8"
+      when WIN32OLE::VARIANT::VT_INT then
+        "INT"
+      when WIN32OLE::VARIANT::VT_UINT then
+        "UINT"
+      when WIN32OLE::VARIANT::VT_VOID then
+        "VOID"
+      when WIN32OLE::VARIANT::VT_HRESULT then
+        "HRESULT"
       when Variant::VariantPointer then
         # TODO: Add detail logic
         "PTR"
-#      when Variant::VariantInt then
-#        "SAFEARRAY"
-#      when Variant::VariantInt then
-#        "CARRAY"
-#      when Variant::VariantInt then
-#        "USERDEFINED"
+      when WIN32OLE::VARIANT::VT_SAFEARRAY then
+        "SAFEARRAY"
+      when WIN32OLE::VARIANT::VT_CARRAY then
+        "CARRAY"
+      when WIN32OLE::VARIANT::VT_USERDEFINED then
+        "USERDEFINED"
       when Variant::VariantObject then
         "UNKNOWN"
       when Variant::VariantDispatch then
