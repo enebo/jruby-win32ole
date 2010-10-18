@@ -1,2 +1,5 @@
 *~
 output
+pkg/*
+*.gem
+.bundle
