@@ -1,5 +1,7 @@
 *~
 output
 pkg/*
+build/*
+dist/*
 *.gem
 .bundle
