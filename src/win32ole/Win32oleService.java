@@ -11,7 +11,6 @@ public class Win32oleService implements BasicLibraryService {
     static WeakReference<RubyClass> win32oleClass;
 
     public boolean basicLoad(Ruby runtime) throws IOException {
-        System.out.println("LOADING WIN32OLE");
         LibraryLoader.loadJacobLibrary();
         RubyClass object = runtime.getObject();
         RubyClass win32ole = runtime.defineClass("WIN32OLE", object,
