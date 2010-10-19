@@ -1,7 +1,7 @@
 package org.jruby.ext.win32ole;
 
-import com.jacob.com.InvocationProxy;
-import com.jacob.com.Variant;
+import org.racob.com.InvocationProxy;
+import org.racob.com.Variant;
 import org.jruby.Ruby;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;

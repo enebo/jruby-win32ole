@@ -1,8 +1,8 @@
 package org.jruby.ext.win32ole;
 
-import com.jacob.com.Dispatch;
-import com.jacob.com.EnumVariant;
-import com.jacob.com.Variant;
+import org.racob.com.Dispatch;
+import org.racob.com.EnumVariant;
+import org.racob.com.Variant;
 import java.util.Calendar;
 import java.util.Date;
 import org.jruby.Ruby;
