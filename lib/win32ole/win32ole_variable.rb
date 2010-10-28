@@ -1,4 +1,6 @@
 class WIN32OLE_VARIABLE
+  java_import org.racob.com.VarDesc
+  
   attr_reader :name
 
   def initialize(type, var_desc, name)
@@ -15,11 +17,22 @@ class WIN32OLE_VARIABLE
   end
 
   def value
-    from_variant(@var_desc.constant)
+    RubyWIN32OLE.from_variant(JRuby.runtime, @var_desc.constant)
   end
 
   def variable_kind
-    variable_kind_string(varkind)
+    case varkind
+    when VarDesc::VAR_PERINSTANCE then
+      "PERINSTANCE"
+    when VarDesc::VAR_STATIC then
+      "STATIC"
+    when VarDesc::VAR_CONST then
+      "CONSTANT"
+    when VarDesc::VAR_DISPATCH then
+      "DISPATCH"
+    else
+      "UNKNOWN"
+    end
   end
 
   def varkind

@@ -1,4 +1,6 @@
 class WIN32OLE_EVENT
+  java_import org.racob.com.DispatchEvents
+  
   def initialize(ole, event_name=nil)
     @event_handlers = {}
 

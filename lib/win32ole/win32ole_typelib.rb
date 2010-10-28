@@ -1,6 +1,8 @@
 require 'win32/registry'
 
 class WIN32OLE_TYPELIB
+  java_import org.racob.com.TypeLib
+
   attr_reader :typelib
   attr_reader :name
   alias :to_s :name

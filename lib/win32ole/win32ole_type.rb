@@ -1,4 +1,6 @@
 class WIN32OLE_TYPE
+  java_import org.racob.com.TypeInfo
+  
   attr_reader :typeinfo
 
   def initialize(*args)

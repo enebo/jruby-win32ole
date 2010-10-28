@@ -1,4 +1,7 @@
 class WIN32OLE_METHOD
+  java_import org.racob.com.FuncDesc
+  java_import org.racob.com.TypeInfo
+  
   attr_accessor :oletype, :typeinfo
 
   def initialize(*args)

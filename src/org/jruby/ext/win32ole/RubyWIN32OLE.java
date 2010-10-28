@@ -63,6 +63,7 @@ public class RubyWIN32OLE extends RubyObject {
             Variant value = enumVariant.nextElement();
             block.yield(context, fromVariant(runtime, value));
         }
+	enumVariant.safeRelease();
 
         return runtime.getNil();
     }

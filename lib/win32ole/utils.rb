@@ -2,8 +2,8 @@ require 'win32ole/win32ole_variant'
 
 class WIN32OLE
   module Utils
-    # FIXME: I don't know specifically if this is a GMT or local date?
-    OUT_OF_RANGE_DATE = Time.local(1899, 12, 30)
+    java_import org.racob.com.ComFailException
+    java_import org.racob.com.Dispatch
 
     def SafeStringValue(str)
       return str if str.kind_of?(::String)
@@ -17,44 +17,6 @@ class WIN32OLE
     def WIN32OLE_TYPEValue(value)
       raise TypeError.new("1st argument should be WIN32OLE_TYPE object") unless value.kind_of? WIN32OLE_TYPE
       value
-    end
-
-    # Convert the supplied variant value to an equivalent Ruby value.
-    # If dispose is true then also dispose the variant itself.
-    def from_variant(value)
-      object = VariantUtilities.variant_to_object(value)
-      case object
-      when Dispatch then
-        object = WIN32OLE.new(object)
-      when java.util.Date then
-        object = java_date2ruby_time(object)
-      end
-
-      # Jacob will return null on out of bound dates whereas MRI returns
-      # some date windows normally returns.  We will match this.
-      if object.nil? && !value.nil?
-        case value.getvt
-        when Variant::VariantDate, (Variant::VariantDate|Variant::VariantByref) then
-          object = OUT_OF_RANGE_DATE
-          
-        end
-      end
-
-      object
-    end
-
-    # Simliar to MRI:vtdate2rbtime but we work with Java date instead of
-    # raw variant type
-    def java_date2ruby_time(date)
-      calendar = Calendar.get_instance
-      calendar.time = date
-
-      Time.local(calendar.get(Calendar::YEAR),
-               calendar.get(Calendar::MONTH),
-               calendar.get(Calendar::DAY_OF_MONTH),
-               calendar.get(Calendar::HOUR_OF_DAY),
-               calendar.get(Calendar::MINUTE),
-               calendar.get(Calendar::SECOND))
     end
 
     def methods_with_flag(flag)
@@ -123,7 +85,7 @@ class WIN32OLE
       path = path_reg.open(arch) { |r| r.read(nil) }[1]
 #      puts "PATH = #{path}"
       begin
-        Automation.loadTypeLib(path)
+        org.racob.com.Automation.loadTypeLib(path)
       rescue ComFailException => e
 #        puts "Failed to load #{name} fom #{path} because: #{e}"
         nil
@@ -210,21 +172,6 @@ class WIN32OLE
       end
 
       type_details ? type_details : type_string
-    end
-
-    def variable_kind_string(varkind)
-      case varkind
-        when VarDesc::VAR_PERINSTANCE then
-        "PERINSTANCE"
-        when VarDesc::VAR_STATIC then
-        "STATIC"
-        when VarDesc::VAR_CONST then
-        "CONSTANT"
-        when VarDesc::VAR_DISPATCH then
-        "DISPATCH"
-        else
-        "UNKNOWN"
-      end
     end
   end
 end
