@@ -5,6 +5,7 @@ import org.racob.com.EnumVariant;
 import org.racob.com.Variant;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -16,6 +17,7 @@ import org.jruby.runtime.Block;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
+import org.racob.com.SafeArray;
 import win32ole.Win32oleService;
 
 /**
@@ -239,6 +241,29 @@ public class RubyWIN32OLE extends RubyObject {
 
     public static IRubyObject fromVariant(Ruby runtime, Variant variant) {
         if (variant == null) return runtime.getNil();
+
+        if (variant.isArray()) {
+            List list = variant.getArray();
+            RubyArray newArray = runtime.newArray();
+
+            for (int i = 0; i < list.size(); i++) {
+                Object element = list.get(i);
+                System.out.println("OBJ: " + element);
+                IRubyObject convertedElement = null;
+
+                if (element instanceof SafeArray) {
+                    convertedElement = null; //TODO: Borked
+                } else if (element instanceof Variant) {
+                    convertedElement = fromVariant(runtime, (Variant) element);
+                } else {
+                    throw runtime.newArgumentError("Unknown element found in SafeArray: " +
+                            element.getClass());
+                }
+                newArray.append(convertedElement);
+            }
+
+            return newArray;
+        }
 
         switch (variant.getType()) {
             case Variant.VariantBoolean:
