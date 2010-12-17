@@ -248,7 +248,6 @@ public class RubyWIN32OLE extends RubyObject {
 
             for (int i = 0; i < list.size(); i++) {
                 Object element = list.get(i);
-                System.out.println("OBJ: " + element);
                 IRubyObject convertedElement = null;
 
                 if (element instanceof SafeArray) {
