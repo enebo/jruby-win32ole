@@ -167,6 +167,7 @@ public class RubyWIN32OLE extends RubyObject {
         Variant returnValue = Dispatch.invoke(dispatch, dispatchId, dispatchType,
                 objectArgs, errorArgs);
 
+        System.out.println("INVOKEINTERNAL: " + returnValue);
         return fromVariant(context.getRuntime(), returnValue);
     }
     private int[] makeErrorArgs(int size) {
@@ -234,16 +235,14 @@ public class RubyWIN32OLE extends RubyObject {
             return runtime.newFixnum(((Number) object).intValue());
         } else if (object instanceof String) {
             return runtime.newString((String) object);
+        } else if (object instanceof SafeArray) {
+            return listFromSafeArray(runtime, (SafeArray) object);
         }
 
         return JavaUtil.convertJavaToUsableRubyObject(runtime, object);
     }
 
-    public static IRubyObject fromVariant(Ruby runtime, Variant variant) {
-        if (variant == null) return runtime.getNil();
-
-        if (variant.isArray()) {
-            List list = variant.getArray();
+    private static IRubyObject listFromSafeArray(Ruby runtime, SafeArray list) {
             RubyArray newArray = runtime.newArray();
 
             for (int i = 0; i < list.size(); i++) {
@@ -262,6 +261,13 @@ public class RubyWIN32OLE extends RubyObject {
             }
 
             return newArray;
+    }
+
+    public static IRubyObject fromVariant(Ruby runtime, Variant variant) {
+        if (variant == null) return runtime.getNil();
+
+        if (variant.isArray()) {
+            return listFromSafeArray(runtime, (SafeArray) variant.getArray());
         }
 
         switch (variant.getType()) {
