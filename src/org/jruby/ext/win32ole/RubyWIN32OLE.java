@@ -5,7 +5,6 @@ import org.racob.com.EnumVariant;
 import org.racob.com.Variant;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -73,23 +72,21 @@ public class RubyWIN32OLE extends RubyObject {
     @JRubyMethod(required = 3)
     public IRubyObject _getproperty(ThreadContext context, IRubyObject dispid,
             IRubyObject args, IRubyObject argTypes) {
-        RubyArray argsArray = args.convertToArray();
-        Object[] objectArgs = makeObjectArgs(argsArray);
-        int dispatchId = (int) RubyInteger.num2long(dispid);
+        Object[] objectArgs = makeObjectArgs(args.convertToArray());
+        int id = (int) RubyInteger.num2long(dispid);
+        Ruby runtime = context.getRuntime();
         
-        if (objectArgs.length == 0) {
-            return fromObject(context.getRuntime(), Dispatch.callO(dispatch, dispatchId));
-        } 
+        if (objectArgs.length == 0) return fromObject(runtime, dispatch.callO(id));
 
-        return fromVariant(context.getRuntime(),
-                Dispatch.call(dispatch, dispatchId, objectArgs));
+        return fromVariant(runtime, dispatch.call(id, objectArgs));
     }
 
     @JRubyMethod(required = 1, rest = true)
     public IRubyObject initialize(ThreadContext context, IRubyObject[] args) {
         String id = args[0].convertToString().asJavaString();
+        String progId = toProgID(id);
 
-        dispatch = new Dispatch(toProgID(id));
+        dispatch = new Dispatch(progId);
 
         return this;
     }
@@ -126,14 +123,15 @@ public class RubyWIN32OLE extends RubyObject {
     public IRubyObject op_aref(ThreadContext context, IRubyObject property) {
         String propertyName = property.asJavaString();
         
-        return fromVariant(context.getRuntime(), Dispatch.get(dispatch, propertyName));
+        return fromVariant(context.getRuntime(), dispatch.get(propertyName));
     }
 
     @JRubyMethod(name = "[]=", required = 2)
     public IRubyObject op_aset(ThreadContext context, IRubyObject property, IRubyObject value) {
         String propertyName = property.asJavaString();
 
-        Dispatch.put(dispatch, propertyName, toObject(value));
+        dispatch.put(propertyName, toObject(value));
+        
         return context.getRuntime().getNil();
     }
 
@@ -154,7 +152,7 @@ public class RubyWIN32OLE extends RubyObject {
         Object[] objectArgs = makeObjectArgs(args, 1);
         int[] errorArgs = new int[objectArgs.length];
 
-        Dispatch.invoke(dispatch, methodName, Dispatch.Put, objectArgs, errorArgs);
+        dispatch.invoke(methodName, Dispatch.Put, objectArgs, errorArgs);
         return context.getRuntime().getNil();
     }
 
@@ -164,10 +162,9 @@ public class RubyWIN32OLE extends RubyObject {
         int dispatchId = (int) RubyInteger.num2long(dispid);
         Object[] objectArgs = makeObjectArgs(argsArray);
         int[] errorArgs = makeErrorArgs(objectArgs.length);
-        Variant returnValue = Dispatch.invoke(dispatch, dispatchId, dispatchType,
+        Variant returnValue = dispatch.invoke(dispatchId, dispatchType,
                 objectArgs, errorArgs);
 
-        System.out.println("INVOKEINTERNAL: " + returnValue);
         return fromVariant(context.getRuntime(), returnValue);
     }
     private int[] makeErrorArgs(int size) {
@@ -201,10 +198,10 @@ public class RubyWIN32OLE extends RubyObject {
 
     private IRubyObject invokeMethodOrGet(ThreadContext context, String methodName, IRubyObject[] args) {
         if (args.length == 1) { // No-arg call
-            return fromObject(context.getRuntime(), Dispatch.callO(dispatch, methodName));
+            return fromObject(context.getRuntime(), dispatch.callO(methodName));
         } 
         return fromVariant(context.getRuntime(),
-                Dispatch.callN(dispatch, methodName, makeObjectArgs(args, 1)));
+                dispatch.callN(methodName, makeObjectArgs(args, 1)));
     }
 
     @Override
@@ -300,8 +297,8 @@ public class RubyWIN32OLE extends RubyObject {
     }
 
     public static String toProgID(String id) {
-        if (id != null && id.startsWith("{{") && id.endsWith("}}")) {
-            return id.substring(2, id.length() - 2);
+        if (id != null && id.startsWith("{") && id.endsWith("}")) {
+            return "clsid:" + id.substring(1, id.length() - 1);
         }
 
         return id;
