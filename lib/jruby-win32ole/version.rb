@@ -1,5 +1,5 @@
 module JRuby
   module WIN32OLE
-    VERSION = "0.8.2"
+    VERSION = "0.8.3"
   end
 end
