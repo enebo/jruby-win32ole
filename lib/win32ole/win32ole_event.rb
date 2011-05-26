@@ -1,6 +1,11 @@
 class WIN32OLE_EVENT
   java_import org.racob.com.DispatchEvents
-  
+
+  # Returns OLE event object. The first argument specifies WIN32OLE object. The second argument specifies OLE event name.
+  #
+  #   ie = WIN32OLE.new('InternetExplorer.Application')
+  #   ev = WIN32OLE_EVENT.new(ie, 'DWebBrowserEvents')
+  #
   def initialize(ole, event_name=nil)
     @event_handlers = {}
 
@@ -14,6 +19,13 @@ class WIN32OLE_EVENT
     DispatchEvents.new dispatch, RubyInvocationProxy.new(self), dispatch.program_id
   end
 
+  # Defines the callback event. If argument is omitted, this method defines the callback of all events.
+  # 
+  #  ie = WIN32OLE.new('InternetExplorer.Application')
+  #  ev = WIN32OLE_EVENT.new(ie)
+  #  ev.on_event("NavigateComplete") {|url| puts url}
+  #  ev.on_event() {|ev, *args| puts "#{ev} fired"}
+  # 
   def on_event(name=nil, &block)
     if name
       @event_handlers[name.to_s] = block
@@ -22,6 +34,17 @@ class WIN32OLE_EVENT
     end
   end
   
+  # removes the callback of event.
+  # 
+  #   ie = WIN32OLE.new('InternetExplorer.Application')
+  #   ev = WIN32OLE_EVENT.new(ie)
+  #   ev.on_event('BeforeNavigate2') {|*args|
+  #     args.last[6] = true
+  #   }
+  #     ...
+  #   ev.off_event('BeforeNavigate2')
+  #     ...
+  # 
   def off_event(name=nil)
     if name.nil?
       @event_handlers.clear
@@ -45,6 +68,8 @@ class WIN32OLE_EVENT
     end
   end
 
+  # Translates and dispatches Windows message.
+  #
   # Almost noop this.  We don't because it get CPU hot when people put this
   # in a hot loop!
   def self.message_loop
