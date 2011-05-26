@@ -21,6 +21,19 @@ class WIN32OLE_EVENT
       @default_handler = block
     end
   end
+  
+  def off_event(name=nil)
+    if name.nil?
+      @event_handlers.clear
+      @default_handler = nil
+    elsif name.kind_of?(String) || name.kind_of?(Symbol)
+      @event_handlers.delete(name.to_s)
+    else
+      raise TypeError.new("wrong argument type (expected String or Symbol)")
+    end
+    
+    nil
+  end
 
   def method_missing(name, *args)
     name = name.to_s
