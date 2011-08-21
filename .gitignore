@@ -5,3 +5,5 @@ build/*
 dist/*
 *.gem
 .bundle
+nbproject/*
+

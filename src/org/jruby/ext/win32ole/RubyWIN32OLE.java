@@ -1,5 +1,6 @@
 package org.jruby.ext.win32ole;
 
+import java.lang.reflect.Array;
 import org.racob.com.Dispatch;
 import org.racob.com.EnumVariant;
 import org.racob.com.Variant;
@@ -122,7 +123,7 @@ public class RubyWIN32OLE extends RubyObject {
     @JRubyMethod(name = "[]", required = 1)
     public IRubyObject op_aref(ThreadContext context, IRubyObject property) {
         String propertyName = property.asJavaString();
-        
+
         return fromVariant(context.getRuntime(), dispatch.get(propertyName));
     }
 
@@ -200,8 +201,10 @@ public class RubyWIN32OLE extends RubyObject {
         if (args.length == 1) { // No-arg call
             return fromObject(context.getRuntime(), dispatch.callO(methodName));
         } 
-        return fromVariant(context.getRuntime(),
-                dispatch.callN(methodName, makeObjectArgs(args, 1)));
+
+        Variant variant = dispatch.callN(methodName, makeObjectArgs(args, 1));
+        return fromVariant(context.getRuntime(), variant);
+                
     }
 
     @Override
@@ -209,7 +212,12 @@ public class RubyWIN32OLE extends RubyObject {
         return dispatch;
     }
 
+    private static final Class OBJECT_ARRAY_CLASS = Array.newInstance(Object.class, 1).getClass();
+
     public static Object toObject(IRubyObject rubyObject) {
+        if (rubyObject instanceof RubyArray) {
+            return ((RubyArray) rubyObject).toJava(OBJECT_ARRAY_CLASS);
+        }
         return rubyObject.toJava(Object.class);
     }
 
@@ -239,33 +247,21 @@ public class RubyWIN32OLE extends RubyObject {
         return JavaUtil.convertJavaToUsableRubyObject(runtime, object);
     }
 
-    private static IRubyObject listFromSafeArray(Ruby runtime, SafeArray list) {
-            RubyArray newArray = runtime.newArray();
+    private static IRubyObject listFromSafeArray(Ruby runtime, SafeArray array) {
+        Variant[] values = array.getValues();
+        RubyArray newArray = runtime.newArray();
 
-            for (int i = 0; i < list.size(); i++) {
-                Object element = list.get(i);
-                IRubyObject convertedElement = null;
-
-                if (element instanceof SafeArray) {
-                    convertedElement = null; //TODO: Borked
-                } else if (element instanceof Variant) {
-                    convertedElement = fromVariant(runtime, (Variant) element);
-                } else {
-                    throw runtime.newArgumentError("Unknown element found in SafeArray: " +
-                            element.getClass());
-                }
-                newArray.append(convertedElement);
+        if (values != null) {
+            for (int i = 0; i < values.length; i++) {
+                newArray.append(fromVariant(runtime, values[i]));
             }
-
-            return newArray;
+        }
+        return newArray;
     }
 
     public static IRubyObject fromVariant(Ruby runtime, Variant variant) {
         if (variant == null) return runtime.getNil();
-
-        if (variant.isArray()) {
-            return listFromSafeArray(runtime, (SafeArray) variant.getArray());
-        }
+        if (variant.isArray()) return listFromSafeArray(runtime, variant.getSafeArray());
 
         switch (variant.getType()) {
             case Variant.VariantBoolean:
