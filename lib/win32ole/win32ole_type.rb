@@ -1,11 +1,11 @@
 class WIN32OLE_TYPE
   java_import org.racob.com.TypeInfo
-  
+
   attr_reader :typeinfo
 
   def initialize(*args)
     case args.length
-    when 2 then 
+    when 2 then
       typelib_name, olename = SafeStringValue(args[0]), SafeStringValue(args[1])
       @typelib = WIN32OLE_TYPELIB.new(typelib_name) # Internal call
       find_all_typeinfo(@typelib.typelib) do |info, docs|
@@ -97,7 +97,7 @@ class WIN32OLE_TYPE
   def to_s
     name
   end
-  
+
   def variables
     variables = []
     all_vars(@typeinfo) do |desc, name|
@@ -125,7 +125,7 @@ class WIN32OLE_TYPE
       Win32::Registry::HKEY_CLASSES_ROOT.open('CLSID') do |reg|
         reg.each_key do |clsid, wtime|
           reg.open(clsid) do |clsid_reg|
-            clsid_reg.each_key do |key, wtime|
+            clsid_reg.each_key do |key, time|
               name = nil
               if key == "ProgID"
                 clsid_reg.open(key) {|key_reg| name = key_reg.read(nil)[1] }

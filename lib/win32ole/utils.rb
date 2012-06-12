@@ -75,7 +75,7 @@ class WIN32OLE
           tdocs = type_lib.get_documentation(i)
           return type_lib.get_type_info(i) if tdocs.name == docs.name
         rescue ComFailException => e
-          # We continue on failure. 
+          # We continue on failure.
         end
       end
       type_info # Actually MRI seems like it could fail in weird case
@@ -99,7 +99,7 @@ class WIN32OLE
         info = typelib.get_type_info(i)
         next unless info
         yield info, docs
-      end      
+      end
     end
 
     def all_vars(typeinfo)
@@ -111,7 +111,7 @@ class WIN32OLE
         name = names[0]
         next unless name
         yield desc, name
-      end      
+      end
     end
 
     def reg_each_key_for(reg, subkey, &block)
@@ -121,13 +121,13 @@ class WIN32OLE
     end
 
     # Walks all guid/clsid entries and yields every single version
-    # of those entries to the supplied block. See search_registry as 
+    # of those entries to the supplied block. See search_registry as
     # an example of its usage.
     def typelib_registry_each_guid_version
-      Win32::Registry::HKEY_CLASSES_ROOT.open('TypeLib') do |reg| 
+      Win32::Registry::HKEY_CLASSES_ROOT.open('TypeLib') do |reg|
         reg.each_key do |guid, wtime|
           reg.open(guid) do |guid_reg|
-            guid_reg.each_key do |version_string, wtime|
+            guid_reg.each_key do |version_string, time|
               version = version_string.to_f
               begin
                 guid_reg.open(version_string) do |version_reg|
