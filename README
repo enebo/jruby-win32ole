@@ -1,0 +1,2 @@
+This is a jruby win32ole implementation.
+It is distributed as a gem that comes bundled/packaged with jruby's mainline windows distros.
