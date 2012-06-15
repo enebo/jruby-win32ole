@@ -1,0 +1,6 @@
+This is a jruby win32ole implementation.
+It is distributed as a gem that comes bundled/packaged with jruby's mainline windows distros.
+
+To use:
+open project in netbeans, it will prompt you for the location of jruby.jar file.
+After that you can either build in netbeans, or from the command line using ant.
